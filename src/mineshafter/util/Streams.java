@@ -12,7 +12,9 @@ public class Streams {
 		while(true) {
 			try {
 				read = in.read(b);
-				if(read == -1) break;
+				if(read == -1) {
+					break;
+				}
 			} catch(IOException e) {
 				break;
 			}
@@ -22,17 +24,22 @@ public class Streams {
 		out.flush();
 		return total;
 	}
+	
 	public static void pipeStreamsActive(final InputStream in,final OutputStream out) {
 		Thread thread = new Thread("Active Pipe Thread") {
+			
+			@Override
 			public void run() {
 				byte[] b = new byte[8192];
 				int count;
 				while(true) {
 					try {
-					count = in.read(b);
-					if(count == -1) return;
-					out.write(b, 0, count);
-					out.flush();
+						count = in.read(b);
+						if(count == -1) {
+							return;
+						}
+						out.write(b, 0, count);
+						out.flush();
 					} catch(IOException e) {
 						return;
 					}

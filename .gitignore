@@ -1,3 +1,6 @@
 *.jar
-*.class
+*.txt
+*.log
+*.properties
+world/
 bin/

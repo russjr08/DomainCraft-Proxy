@@ -1,3 +1,1 @@
-This is a work in progress, I am re-starting from the original Mineshafter Proxy source, since it was cleaned up, and My code had been getting messy.
-
-I will make a proper README when this code works with MineshafterSquared auth servers.  Until then hold tight.
+This is a quick and preliminary Update of the updated Mineshafter source to work with MineshafterSquared.  100% of the credit goes to Download13 for making such an awesome proxy.  I still do not suggest using this code as there is a massive problem when downloading or updating the game. 

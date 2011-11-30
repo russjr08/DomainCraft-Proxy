@@ -9,14 +9,14 @@ import java.util.regex.Pattern;
 
 
 public class MineProxy extends Thread {
-	public static String authServer = "mineshafter.appspot.com";
+	public static String authServer;
 	
 	public static Pattern SKIN_URL = Pattern.compile("http://s3\\.amazonaws\\.com/MinecraftSkins/(.+?)\\.png");
 	public static Pattern CLOAK_URL = Pattern.compile("http://s3\\.amazonaws\\.com/MinecraftCloaks/(.+?)\\.png");
 	public static Pattern GETVERSION_URL = Pattern.compile("http://session\\.minecraft\\.net/game/getversion\\.jsp");
 	public static Pattern JOINSERVER_URL = Pattern.compile("http://session\\.minecraft\\.net/game/joinserver\\.jsp(.*)");
 	public static Pattern CHECKSERVER_URL = Pattern.compile("http://session\\.minecraft\\.net/game/checkserver\\.jsp(.*)");
-	// public static Pattern LOGIN_URL = Pattern.compile("login\\.minecraft\\.net/");
+	//public static Pattern LOGIN_URL = Pattern.compile("login\\.minecraft\\.net/");
 	
 	public float version = 0;
 	
@@ -30,8 +30,9 @@ public class MineProxy extends Thread {
 	
 	private int port = 0;
 	
-	public MineProxy(final int port, float version) {
+	public MineProxy(final int port, float version, String currentAuthServer) {
 		this.setName("MineProxy Thread");
+		MineProxy.authServer = currentAuthServer; // TODO maybe change this leave it for now 
 		
 		try {
 			this.version = version;

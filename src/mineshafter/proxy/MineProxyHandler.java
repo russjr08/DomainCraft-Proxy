@@ -74,7 +74,7 @@ public class MineProxyHandler extends Thread {
 		this.proxy.debuggingReport.add("Request: " + method + " " + url);
 		
 		// Read the incoming headers
-		//System.out.println("Headers:");
+		// System.out.println("Headers:");
 		try {
 			do {
 				header = this.fromClient.readLine().trim();
@@ -91,6 +91,7 @@ public class MineProxyHandler extends Thread {
 			return;
 		}
 		
+		// run matchers
 		Matcher skinMatcher = MineProxy.SKIN_URL.matcher(url);
 		Matcher cloakMatcher = MineProxy.CLOAK_URL.matcher(url);
 		Matcher getversionMatcher = MineProxy.GETVERSION_URL.matcher(url);
@@ -100,26 +101,8 @@ public class MineProxyHandler extends Thread {
 		byte[] data = null;
 		String params;
 		
-		// TODO write in rate-limiting somehow, and report high rate ones by saving the output and send it to a reporting service
+		// If Skin Request
 		if(skinMatcher.matches()) {
-			long current = System.currentTimeMillis();
-			if(current - this.proxy.lastCountCheck > 5000) { // If more than 5 seconds since last check
-				this.proxy.countSinceLastCheck = 0;
-				this.proxy.lastCountCheck = current;
-			} else {
-				this.proxy.countSinceLastCheck++;
-				if(this.proxy.countSinceLastCheck > 30 && !this.proxy.overCountReported) { // More than 30 checks in 5 seconds seems excessive
-					String report = "";
-					for(String i : this.proxy.debuggingReport) {
-						report += i + "\n";
-					}
-					
-					postRequest("http://mineshafter.appspot.com/report", report, "text/plain");
-					
-					this.proxy.overCountReported = true;
-				}
-			}
-			
 			System.out.println("Skin");
 			this.proxy.debuggingReport.add("Skin");
 			
@@ -130,7 +113,9 @@ public class MineProxyHandler extends Thread {
 				
 				data = this.proxy.skinCache.get(username); // Then get it from there
 			} else {
-				url = "http://" + MineProxy.authServer + "/skin/" + username + ".png";
+				//url = "http://" + MineProxy.authServer + "/skin/" + username + ".png"; <-- Keep this code for API implementation
+				url = "http://" + MineProxy.authServer + "/game/getskin.php?name=" + username;
+				
 				System.out.println("To: " + url);
 				this.proxy.debuggingReport.add("To: " + url);
 				
@@ -141,7 +126,9 @@ public class MineProxyHandler extends Thread {
 				this.proxy.skinCache.put(username, data); // And put it in there
 			}
 			
-		} else if(cloakMatcher.matches()) {
+		} 
+		// If Cloak Request
+		else if(cloakMatcher.matches()) {
 			System.out.println("Cloak");
 			this.proxy.debuggingReport.add("Cloak");
 			
@@ -151,7 +138,9 @@ public class MineProxyHandler extends Thread {
 				this.proxy.debuggingReport.add("Cloak from cache");
 				data = this.proxy.cloakCache.get(username);
 			} else {
-				url = "http://" + MineProxy.authServer + "/cloak/get.jsp?user=" + username;
+				//url = "http://" + MineProxy.authServer + "/cloak/get.jsp?user=" + username;
+				url = "http://" + MineProxy.authServer + "/game/getcloak.php?user=" + username;
+				
 				System.out.println("To: " + url);
 				this.proxy.debuggingReport.add("To: " + url);
 				
@@ -162,11 +151,13 @@ public class MineProxyHandler extends Thread {
 				this.proxy.cloakCache.put(username, data);
 			}
 			
-		} else if(getversionMatcher.matches()) {
+		} 
+		// If Version Request
+		else if(getversionMatcher.matches()) {
 			System.out.println("GetVersion");
 			this.proxy.debuggingReport.add("GetVersion");
 			
-			url = "http://" + MineProxy.authServer + "/game/getversion.jsp?proxy=" + this.proxy.version;
+			url = "http://" + MineProxy.authServer + "/game/getversion.php?proxy=" + this.proxy.version;
 			System.out.println("To: " + url);
 			this.proxy.debuggingReport.add("To: " + url);
 			
@@ -184,29 +175,35 @@ public class MineProxyHandler extends Thread {
 				e.printStackTrace();
 			}
 			
-		} else if(joinserverMatcher.matches()) {
+		} 
+		// If JoinServer Request
+		else if(joinserverMatcher.matches()) {
 			System.out.println("JoinServer");
 			this.proxy.debuggingReport.add("JoinServer");
 			
 			params = joinserverMatcher.group(1);
-			url = "http://" + MineProxy.authServer + "/game/joinserver.jsp" + params;
+			url = "http://" + MineProxy.authServer + "/game/joinserver.php" + params;
 			System.out.println("To: " + url);
 			this.proxy.debuggingReport.add("To: " + url);
 			
 			data = getRequest(url);
 			
-		} else if(checkserverMatcher.matches()) {
+		}
+		// If Check Server Request
+		else if(checkserverMatcher.matches()) {
 			System.out.println("CheckServer");
 			this.proxy.debuggingReport.add("CheckServer");
 			
 			params = checkserverMatcher.group(1);
-			url = "http://" + MineProxy.authServer + "/game/checkserver.jsp" + params;
+			url = "http://" + MineProxy.authServer + "/game/checkserver.php" + params;
 			System.out.println("To: " + url);
 			this.proxy.debuggingReport.add("To: " + url);
 			
 			data = getRequest(url);
 			
-		} else {
+		}
+		// If Any other network request
+		else {
 			System.out.println("No handler. Piping.");
 			this.proxy.debuggingReport.add("No handler. Piping.");
 			
