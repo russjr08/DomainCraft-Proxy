@@ -13,7 +13,7 @@ import mineshafter.util.Resources;
 import mineshafter.util.SimpleRequest;
 
 public class MineServer {
-	protected static float VERSION = 2.2f;
+	protected static float VERSION = 2.2f; // really 3.0 but keeping this for server compatibility reasons for now.
 	protected static int proxyPort = 8071;
 	protected static String authServer = Resources.loadString("auth").trim();
 	

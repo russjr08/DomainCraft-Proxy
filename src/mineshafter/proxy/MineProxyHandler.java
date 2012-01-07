@@ -66,12 +66,10 @@ public class MineProxyHandler extends Thread {
 			
 		} catch(IOException e) {
 			System.out.println("Unable to read request");
-			this.proxy.debuggingReport.add("Unable to read request");
 			e.printStackTrace();
 			return;
 		}
 		System.out.println("Request: " + method + " " + url);
-		this.proxy.debuggingReport.add("Request: " + method + " " + url);
 		
 		// Read the incoming headers
 		// System.out.println("Headers:");
@@ -86,7 +84,6 @@ public class MineProxyHandler extends Thread {
 			} while(header.length() > 0);
 		} catch(IOException e) {
 			System.out.println("Unable to read headers");
-			this.proxy.debuggingReport.add("Unable to read headers");
 			e.printStackTrace();
 			return;
 		}
@@ -104,24 +101,21 @@ public class MineProxyHandler extends Thread {
 		// If Skin Request
 		if(skinMatcher.matches()) {
 			System.out.println("Skin");
-			this.proxy.debuggingReport.add("Skin");
 			
 			String username = skinMatcher.group(1);
 			if(this.proxy.skinCache.containsKey(username)) { // Is the skin in the cache?
 				System.out.println("Skin from cache");
-				this.proxy.debuggingReport.add("Skin from cache");
 				
 				data = this.proxy.skinCache.get(username); // Then get it from there
 			} else {
 				//url = "http://" + MineProxy.authServer + "/skin/" + username + ".png"; <-- Keep this code for API implementation
-				url = "http://" + MineProxy.authServer + "/game/getskin.php?name=" + username;
+				//url = "http://" + MineProxy.authServer + "/game/getskin.php?name=" + username;
+				url = "http://" + MineProxy.authServer + "/game/getskin/" + username;
 				
 				System.out.println("To: " + url);
-				this.proxy.debuggingReport.add("To: " + url);
 				
 				data = getRequest(url); // Then get it...
 				System.out.println("Response length: " + data.length);
-				this.proxy.debuggingReport.add("Response length: " + data.length);
 				
 				this.proxy.skinCache.put(username, data); // And put it in there
 			}
@@ -130,23 +124,20 @@ public class MineProxyHandler extends Thread {
 		// If Cloak Request
 		else if(cloakMatcher.matches()) {
 			System.out.println("Cloak");
-			this.proxy.debuggingReport.add("Cloak");
 			
 			String username = cloakMatcher.group(1);
 			if(this.proxy.cloakCache.containsKey(username)) {
 				System.out.println("Cloak from cache");
-				this.proxy.debuggingReport.add("Cloak from cache");
 				data = this.proxy.cloakCache.get(username);
 			} else {
 				//url = "http://" + MineProxy.authServer + "/cloak/get.jsp?user=" + username;
-				url = "http://" + MineProxy.authServer + "/game/getcloak.php?user=" + username;
+				//url = "http://" + MineProxy.authServer + "/game/getcloak.php?user=" + username;
+				url = "http://" + MineProxy.authServer + "/game/getcloak/" + username;
 				
 				System.out.println("To: " + url);
-				this.proxy.debuggingReport.add("To: " + url);
 				
 				data = getRequest(url);
 				System.out.println("Response length: " + data.length);
-				this.proxy.debuggingReport.add("Response length: " + data.length);
 				
 				this.proxy.cloakCache.put(username, data);
 			}
@@ -155,11 +146,10 @@ public class MineProxyHandler extends Thread {
 		// If Version Request
 		else if(getversionMatcher.matches()) {
 			System.out.println("GetVersion");
-			this.proxy.debuggingReport.add("GetVersion");
 			
-			url = "http://" + MineProxy.authServer + "/game/getversion.php?proxy=" + this.proxy.version;
+			//url = "http://" + MineProxy.authServer + "/game/getversion.php?proxy=" + this.proxy.version;
+			url = "http://" + MineProxy.authServer + "/game/getversion/" + this.proxy.version;
 			System.out.println("To: " + url);
-			this.proxy.debuggingReport.add("To: " + url);
 			
 			try {
 				int postlen = Integer.parseInt(headers.get("content-length"));
@@ -170,7 +160,6 @@ public class MineProxyHandler extends Thread {
 				
 			} catch(IOException e) {
 				System.out.println("Unable to read POST data from getversion request");
-				this.proxy.debuggingReport.add("Unable to read POST data from getversion request");
 				
 				e.printStackTrace();
 			}
@@ -179,33 +168,27 @@ public class MineProxyHandler extends Thread {
 		// If JoinServer Request
 		else if(joinserverMatcher.matches()) {
 			System.out.println("JoinServer");
-			this.proxy.debuggingReport.add("JoinServer");
 			
 			params = joinserverMatcher.group(1);
-			url = "http://" + MineProxy.authServer + "/game/joinserver.php" + params;
+			//url = "http://" + MineProxy.authServer + "/game/joinserver.php" + params;
+			url = "http://" + MineProxy.authServer + "/game/joinserver" + params;
 			System.out.println("To: " + url);
-			this.proxy.debuggingReport.add("To: " + url);
-			
 			data = getRequest(url);
-			
 		}
 		// If Check Server Request
 		else if(checkserverMatcher.matches()) {
 			System.out.println("CheckServer");
-			this.proxy.debuggingReport.add("CheckServer");
 			
 			params = checkserverMatcher.group(1);
-			url = "http://" + MineProxy.authServer + "/game/checkserver.php" + params;
+			//url = "http://" + MineProxy.authServer + "/game/checkserver.php" + params;
+			url = "http://" + MineProxy.authServer + "/game/checkserver" + params;
 			System.out.println("To: " + url);
-			this.proxy.debuggingReport.add("To: " + url);
 			
 			data = getRequest(url);
-			
 		}
 		// If Any other network request
 		else {
 			System.out.println("No handler. Piping.");
-			this.proxy.debuggingReport.add("No handler. Piping.");
 			
 			try {
 				if(!url.startsWith("http://") && !url.startsWith("https://")) {
@@ -223,44 +206,41 @@ public class MineProxyHandler extends Thread {
 				} else if(method.equals("GET")) {
 					HttpURLConnection c = (HttpURLConnection) u.openConnection(Proxy.NO_PROXY);
 					c.setRequestMethod("GET");
-					c.setRequestProperty("Host", u.getHost());
 					
-					// content_len is sometimes null
+					for(String k : headers.keySet()){
+						c.setRequestProperty(k, headers.get(k));
+					}
 					
-					//int content_len = c.getContentLength();
-					//String content_type = c.getContentType();
-					
-					//System.out.println("Content-Length: " + content_len);
-					//System.out.println("Content-Type: " + content_type);
-					
-					//Collect the headers from the server and retransmit them
 					String res = "HTTP/1.0 " + c.getResponseCode() + " " + c.getResponseMessage() + "\r\n";
-					res += "Proxy-Connection: close\r\n";
+					res += "Connection: close\r\nProxy-Connection: close\r\n";
 					
 					java.util.Map<String, java.util.List<String>> h = c.getHeaderFields();
 					for(String k : h.keySet()) {
-						if(k == null) continue;
+						if(k == null || k.equalsIgnoreCase("Connection") || k.equalsIgnoreCase("Proxy-Connection")) continue;
 						java.util.List<String> vals = h.get(k);
 						for(String v : vals) {
 							res += k + ": " + v + "\r\n";
 						}
 					}
-					res += "\r\n\r\n";
+					res += "\r\n";
 					
-					//System.out.println(res);
+					// System.out.println(res);
 					
 					this.toClient.writeBytes(res);
-					Streams.pipeStreams(c.getInputStream(), this.toClient);
-					this.toClient.close();
+					int size = Streams.pipeStreams(c.getInputStream(), this.toClient);
 					
-					System.out.println("Piping finished\n");
-					this.proxy.debuggingReport.add("Piping finished\n");
+					this.toClient.close();
+					this.connection.close();
+					
+					System.out.println("Piping finished, data size: " + size);
 					
 				} else if(method.equals("HEAD")) {
 					HttpURLConnection c = (HttpURLConnection) u.openConnection(Proxy.NO_PROXY);
 					c.setRequestMethod("HEAD");
-					String etag = headers.get("if-none-match");
-					c.setRequestProperty("If-None-Match", etag);
+					
+					for(String k : headers.keySet()){
+						c.setRequestProperty(k, headers.get(k));
+					}
 					
 					String res = "HTTP/1.0 " + c.getResponseCode() + " " + c.getResponseMessage() + "\r\n";
 					res += "Proxy-Connection: close\r\n";
@@ -273,15 +253,15 @@ public class MineProxyHandler extends Thread {
 							res += k + ": " + v + "\r\n";
 						}
 					}
-					res += "\r\n\r\n";
+					res += "\r\n";
 					
 					//System.out.println(res);
 					
-					this.toClient.writeBytes(res); // BUG exception socket write error
+					this.toClient.writeBytes(res); // TODO exception socket write error
 					this.toClient.close();
+					this.connection.close();
 				} else {
 					System.out.println("UNEXPECTED REQUEST TYPE: " + method);
-					this.proxy.debuggingReport.add("UNEXPECTED REQUEST TYPE: " + method);
 				}
 				
 			} catch (Exception e) {
@@ -294,6 +274,7 @@ public class MineProxyHandler extends Thread {
 		try {
 			this.toClient.writeBytes("HTTP/1.0 200 OK\r\nConnection: close\r\nProxy-Connection: close\r\nContent-Length: " + data.length + "\r\n\r\n");
 			this.toClient.write(data);
+			this.connection.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -26,7 +26,7 @@ import mineshafter.util.Streams;
 public class MineClient extends Applet {
 	private static final long serialVersionUID = 1L;
 	
-	protected static float VERSION = 2.9f;
+	protected static float VERSION = 2.9f; // really 3.0 but keeping this for server compatibility reasons for now.
 	protected static int proxyPort = 8061;
 	protected static int proxyHTTPPort = 8062;
 	
@@ -122,7 +122,7 @@ public class MineClient extends Applet {
 			}
 			
 			// start the game launcher
-			startLauncher();
+			startLauncher(args);
 			
 		} catch(Exception e) {
 			System.out.println("Something bad happened:");
@@ -131,7 +131,7 @@ public class MineClient extends Applet {
 		}
 	}
 	
-	public static void startLauncher()
+	public static void startLauncher(String[] args)
 	{
 		try {
 			// if hacked game exists
@@ -142,15 +142,21 @@ public class MineClient extends Applet {
 				@SuppressWarnings("unchecked")
 				Class<Frame> launcherFrame = (Class<Frame>) cl.loadClass("net.minecraft.LauncherFrame");
 				
-				Method main = launcherFrame.getMethod("main", new Class[]{ String[].class });
-				main.invoke(launcherFrame, new Object[]{ new String[0] }); // TODO Put the args we received in here
+				String[] nargs;
+				try{
+					nargs = new String[args.length - 1];
+					System.arraycopy(args, 1, nargs, 0, nargs.length); // Transfer the arguments from the process call so that the launcher gets them
+				} catch(Exception e){
+					nargs = new String[0];
+				}
 				
+				Method main = launcherFrame.getMethod("main", new Class[]{ String[].class });
+				main.invoke(launcherFrame, new Object[]{ nargs });
 			}
 			// if the normal game exists
 			else if(new File(normalLauncherFilename).exists()) {
 				editLauncher();
-				startLauncher();
-				
+				startLauncher(args);
 			}
 			// 
 			else {
@@ -160,7 +166,7 @@ public class MineClient extends Applet {
 					out.write(data);
 					out.flush();
 					out.close();
-					startLauncher();
+					startLauncher(args);
 					
 				} catch(Exception ex) {
 					System.out.println("Error downloading launcher:");
