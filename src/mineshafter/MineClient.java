@@ -1,6 +1,6 @@
 package mineshafter;
 
-import java.applet.Applet;
+//import java.applet.Applet;
 import java.awt.Frame;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -23,10 +23,10 @@ import mineshafter.util.Resources;
 import mineshafter.util.SimpleRequest;
 import mineshafter.util.Streams;
 
-public class MineClient extends Applet {
-	private static final long serialVersionUID = 1L;
+public class MineClient /*extends Applet*/ {
+	//private static final long serialVersionUID = 1L;
 	
-	protected static float VERSION = 2.9f; // really 3.0 but keeping this for server compatibility reasons for now.
+	protected static float VERSION = 3.0f; // really 3.0 but keeping this for server compatibility reasons for now.
 	protected static int proxyPort = 8061;
 	protected static int proxyHTTPPort = 8062;
 	
@@ -38,17 +38,39 @@ public class MineClient extends Applet {
 	
 	/* Added For MineshafterSquared */
 	protected static String authServer = Resources.loadString("auth").trim();
+	protected static String mineshaftersquaredPath;
 	protected static String gamePath;
+	protected static String versionPath;
 	
+	/*
 	public void init() {
 		MineClient.main(new String[0]);
 	}
+	*/
 	
 	public static void main(String[] args) {
 		try {
 			// Get Update Info
+			String[] gamePaths = getGameFilePaths();
+			gamePath = gamePaths[0];
+			versionPath = gamePaths[1];
+			mineshaftersquaredPath = gamePaths[2];
+			
+			// check to make sure mineshaftersquaredPath exists if not create it
+			File msFilePath = new File(mineshaftersquaredPath);
+			if(!msFilePath.exists())
+			{
+				msFilePath.mkdir();
+			}
+			
+			// set minecraft downloads to Mineshafter Squared dir
+			MineClient.normalLauncherFilename = mineshaftersquaredPath + MineClient.normalLauncherFilename;
+			MineClient.hackedLauncherFilename = mineshaftersquaredPath + MineClient.hackedLauncherFilename;
+			
 			String buildNumber = getGameBuildNumber();
-			String updateInfo = new String(SimpleRequest.get("http://" + authServer + "/update.php?name=client&build=" + buildNumber));
+			
+			// updateInfo string for use with the open mineshaftersquared auth server is "http://" + authServer + "/update.php?name=client&build=" + buildNumber
+			String updateInfo = new String(SimpleRequest.get("http://" + authServer + "/update/client/" + buildNumber));
 			String[] updateInfoArray = updateInfo.split(":"); // Split out each chuck of information
 			
 			// assign each information chunk to its variable 
@@ -207,30 +229,39 @@ public class MineClient extends Applet {
 	
 	// Functions added for MineshafterSquared 
 	private static String getGameBuildNumber() {
-        // set variables based on OS
-        String versionPath = null;
-        
-        String os = System.getProperty("os.name").toLowerCase();
-        Map<String, String> enviornment = System.getenv();
-        
-        if (os.contains("windows")) {
-            versionPath = enviornment.get("APPDATA") + "\\.minecraft\\bin\\version";
-            gamePath = enviornment.get("APPDATA") + "\\.minecraft\\bin";
-        } else if (os.contains("mac")) {
-            versionPath = "/Users/" + enviornment.get("USER") + "/Library/Application Support/minecraft/bin/version";
-            gamePath = "/Users/" + enviornment.get("USER") + "/Library/Application Support/minecraft/bin";
-        } else if(os.contains("linux")){
-            versionPath = enviornment.get("HOME") + "/.minecraft/bin/version";
-            gamePath = enviornment.get("HOME") + "/.minecraft/bin";
-        }
-
         // get current game version number
-        if(new File(versionPath).exists()){
+        if(versionPath != null && new File(versionPath).exists()){
             return Resources.loadString(versionPath).trim();
         } else {
             return "0";
         }
     }
+	
+	private static String[] getGameFilePaths(){
+		String[] paths = new String[3];
+		
+		String os = System.getProperty("os.name").toLowerCase();
+        Map<String, String> enviornment = System.getenv();
+        String basePath;
+        if (os.contains("windows")) {
+        	basePath = enviornment.get("APPDATA");
+            paths[0] = basePath + "\\.minecraft\\bin";
+            paths[1] = paths[0] + "\\version";
+            paths[2] = basePath + "\\.mineshaftersquared\\";
+        } else if (os.contains("mac")) {
+        	basePath = "/Users/" + enviornment.get("USER") + "/Library/Application Support";
+        	paths[0] = basePath + "/minecraft/bin";
+        	paths[1] = paths[0] + "/version";
+        	paths[2] = basePath + "/mineshaftersquared/";
+        } else if(os.contains("linux")){
+        	basePath = enviornment.get("HOME");
+        	paths[0] = basePath+ "/.minecraft/bin";
+        	paths[1] = paths[0] + "/version";
+        	paths[2] = basePath + "/.mineshaftersquared/";
+        }
+        
+        return paths;
+	}
 	
 	private static void recursiveDelete(File root){
         if(root.isDirectory()){

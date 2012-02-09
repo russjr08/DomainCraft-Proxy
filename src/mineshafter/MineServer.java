@@ -13,14 +13,15 @@ import mineshafter.util.Resources;
 import mineshafter.util.SimpleRequest;
 
 public class MineServer {
-	protected static float VERSION = 2.2f; // really 3.0 but keeping this for server compatibility reasons for now.
+	protected static float VERSION = 3.0f; // really 3.0 but keeping this for server compatibility reasons for now.
 	protected static int proxyPort = 8071;
 	protected static String authServer = Resources.loadString("auth").trim();
 	
 	public static void main(String[] args) {
 		try {
 			// Get latest version number from server
-            String verstring = new String(SimpleRequest.get(new URL("http://" + authServer + "/update.php?name=server")));
+			// updateInfo string for use with the open mineshaftersquared auth server is "http://" + authServer + "/update.php?name=server"
+            String verstring = new String(SimpleRequest.get(new URL("http://" + authServer + "/update/server")));
             
             // If server does not return anything, set version to 0
 			if(verstring.isEmpty()) {

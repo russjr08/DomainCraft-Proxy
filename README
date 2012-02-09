@@ -1,1 +1,1 @@
-This is a quick and preliminary Update of the updated Mineshafter source to work with MineshafterSquared.  100% of the credit goes to Download13 for making such an awesome proxy.  I still do not suggest using this code as there is a massive problem when downloading or updating the game. 
+Right now the code is not compatabile with the current Open Source Auth Server.  I will make a Screencast explaining what you need to do to get it to work with the current Auth Server.  Eventually I will make a seperate branch so I can have both sets to make things easier.

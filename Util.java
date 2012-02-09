@@ -1,7 +1,6 @@
 package net.minecraft;
 
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -9,9 +8,6 @@ import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.net.HttpURLConnection;
-import javax.net.ssl.HttpsURLConnection;
-
-import org.omg.CORBA_2_3.portable.OutputStream;
 
 public class Util
 {
