@@ -70,7 +70,7 @@
 		<!-- Mac Launcher -->
 		<echo message="Create and Zip the Mac Launcher" />
 		<!-- Copy App Shell -->
-		<copy todir="dist/mac" enablemultiplemappings="true">
+		<copy todir="dist/mac" enablemultiplemappings="true" includeEmptyDirs="true" verbose="true">
 			<fileset dir="lib/mac" />
 		</copy>
 		<copy file="dist/MineshafterSquared-Client.jar" todir="dist/mac/MineshafterSquared-Client.app/Contents/Resources/Java/" />
