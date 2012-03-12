@@ -9,6 +9,8 @@ import java.net.Proxy;
 import java.net.URL;
 
 public class SimpleRequest {
+	
+	
 	public static byte[] get(String url) {
 		try {
 			return get(new URL(url));

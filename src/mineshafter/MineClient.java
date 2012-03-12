@@ -1,6 +1,7 @@
 package mineshafter;
 
 //import java.applet.Applet;
+import java.applet.Applet;
 import java.awt.Frame;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -15,22 +16,18 @@ import java.util.Map;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import javax.swing.JOptionPane;
-
 import mineshafter.proxy.MineProxy;
 import mineshafter.util.Resources;
 import mineshafter.util.SimpleRequest;
 import mineshafter.util.Streams;
 
-public class MineClient /*extends Applet*/ {
-	//private static final long serialVersionUID = 1L;
+public class MineClient extends Applet {
+	private static final long serialVersionUID = 1L;
 	
-	protected static float VERSION = 3.0f; // really 3.0 but keeping this for server compatibility reasons for now.
-	protected static int proxyPort = 8061;
-	protected static int proxyHTTPPort = 8062;
+	protected static float VERSION = 3.1f;
 	
-	protected static String launcherDownloadURL = "https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar"; // "http://www.minecraft.net/download/minecraft.jar";
+	protected static String launcherDownloadURL = "https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar";
 	protected static String normalLauncherFilename = "minecraft.jar";
 	protected static String hackedLauncherFilename = "minecraft_modified.jar";
 	
@@ -42,11 +39,10 @@ public class MineClient /*extends Applet*/ {
 	protected static String gamePath;
 	protected static String versionPath;
 	
-	/*
+	
 	public void init() {
 		MineClient.main(new String[0]);
 	}
-	*/
 	
 	public static void main(String[] args) {
 		try {
@@ -129,13 +125,15 @@ public class MineClient /*extends Applet*/ {
 		}
 		
 		try {
-			MineProxy proxy = new MineProxy(proxyPort, VERSION, authServer); // create proxy
+			MineProxy proxy = new MineProxy(VERSION, authServer); // create proxy
 			proxy.start(); // launch proxy
+			int proxyPort = proxy.getPort();
 			
 			System.setProperty("http.proxyHost", "127.0.0.1");
 			System.setProperty("http.proxyPort", Integer.toString(proxyPort));
-			System.setProperty("https.proxyHost", "127.0.0.1");
-			System.setProperty("https.proxyPort", Integer.toString(proxyPort));
+			
+			//System.setProperty("https.proxyHost", "127.0.0.1");
+			//System.setProperty("https.proxyPort", Integer.toString(proxyPort));
 			
 			// Make sure we have a fresh launcher every time
 			File hackedFile = new File(hackedLauncherFilename);
@@ -153,8 +151,7 @@ public class MineClient /*extends Applet*/ {
 		}
 	}
 	
-	public static void startLauncher(String[] args)
-	{
+	public static void startLauncher(String[] args) {
 		try {
 			// if hacked game exists
 			if(new File(hackedLauncherFilename).exists()) {
