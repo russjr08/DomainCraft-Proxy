@@ -46,7 +46,7 @@ public class MineClient extends Applet {
 	public static void main(String[] args) {
 		try {
 			// Get Update Info
-			String[] gamePaths = getGameFilePaths();
+			String[] gamePaths = getGameFilePaths(); // test
 			gamePath = gamePaths[0];
 			versionPath = gamePaths[1];
 			mineshaftersquaredPath = gamePaths[2];
