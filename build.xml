@@ -61,7 +61,7 @@
 	<target name="launchers">
 		<launch4j>
 			<config headerType="gui" icon="img/MS2.ico" outfile="dist/MineshafterSquared-Client.exe" jarPath="dist/MineshafterSquared-Client.jar" >
-		    	<jre minVersion="1.6.0" initialHeapSize="512" maxHeapSize="1024" />
+		    	<jre minVersion="1.6.0" maxVersion="1.7.0" initialHeapSize="512" maxHeapSize="1024" />
 		  	</config>
 		</launch4j>
 	</target>
