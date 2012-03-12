@@ -16,7 +16,6 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.regex.Matcher;
-
 import mineshafter.util.Streams;
 
 public class MineProxyHandler extends Thread {
