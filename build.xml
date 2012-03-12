@@ -58,10 +58,9 @@
 	</target>
 	<!-- Create Windows Launcher -->
 	<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j.dir}/launch4j.jar :${launch4j.dir}/lib/xstream.jar" />
-	<target depends="compress" name="launchers">
+	<target name="launchers">
 		<launch4j>
 			<config headerType="gui" icon="img/MS2.ico" outfile="dist/MineshafterSquared-Client.exe" jarPath="dist/MineshafterSquared-Client.jar" >
-				<classPath mainClass="mineshafter.programs.MineServer" />
 		    	<jre minVersion="1.6.0" initialHeapSize="512" maxHeapSize="1024" />
 		  	</config>
 		</launch4j>
