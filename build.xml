@@ -36,6 +36,8 @@
 	<!-- Make Jars -->
 	<target depends="build" name="compress">
 		<echo message="Compress"/>
+		<echo message="Copy Util.class into bin">
+		<copy file="Util.class" todir="bin" />
 		<echo message="Build MineClient"/>
 		<jar destfile="dist/MineshafterSquared-Client.jar" basedir="bin">
 			<manifest>
