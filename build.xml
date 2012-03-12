@@ -61,7 +61,7 @@
 	<launch4j>
 		<config headerType="gui" icon="img/MS2.ico" outfile="dist/MineshafterSquared-Client.exe" jarPath="dist/MineshafterSquared-Client.jar" >
 			<classPath mainClass="mineshafter.programs.MineServer" />
-	    	<jre minVersion="1.6.0" initialHeapSize="512MB" maxHeapSize="1024MB" />
+	    	<jre minVersion="1.6.0" initialHeapSize="512" maxHeapSize="1024" />
 	  	</config>
 	</launch4j>
 </project>
