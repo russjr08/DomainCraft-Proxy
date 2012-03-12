@@ -17,6 +17,7 @@ public class MineProxy extends Thread {
 	public static Pattern JOINSERVER_URL = Pattern.compile("http://session\\.minecraft\\.net/game/joinserver\\.jsp(.*)");
 	public static Pattern CHECKSERVER_URL = Pattern.compile("http://session\\.minecraft\\.net/game/checkserver\\.jsp(.*)");
 	public static Pattern AUDIOFIX_URL = Pattern.compile("http://s3\\.amazonaws\\.com/MinecraftResources/");
+	public static Pattern DL_BUKKIT = Pattern.compile("http://dl.bukkit.org/(.+?)");
 	//public static Pattern LOGIN_URL = Pattern.compile("login\\.minecraft\\.net/");
 	
 	public float version = 0;
