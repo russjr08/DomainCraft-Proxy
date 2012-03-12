@@ -25,10 +25,7 @@
     	<delete dir="dist"/>
     </target>
 	<!-- default build -->
-    <target depends="init,clean" name="build" />
-	
-	<echo message="Build Start"/>
-    <target depends="init" name="build-project">
+    <target depends="init" name="build">
     	<echo message="Compile"/>
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
@@ -37,7 +34,7 @@
         </javac>
     </target>
 	<!-- Make Jars -->
-	<target depends="build-project" name="compress">
+	<target depends="build" name="compress">
 		<echo message="Compress"/>
 		<echo message="Build MineClient"/>
 		<jar destfile="dist/MineshafterSquared-Client.jar" basedir="bin">
