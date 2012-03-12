@@ -25,35 +25,35 @@
     	<delete dir="dist"/>
     </target>
 	<!-- default build -->
-    <target depends="init,clean" name="build">
-    	<echo message="Build Start"/>
-	    <target depends="init" name="build-project">
-	    	<echo message="Compile"/>
-	        <echo message="${ant.project.name}: ${ant.file}"/>
-	        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
-	            <src path="src"/>
-	            <classpath refid="Mineshafter-Squared-Proxy.classpath"/>
-	        </javac>
-	    </target>
-    	<!-- Make Jars -->
-    	<target depends="build-project" name="compress">
-    		<echo message="Compress"/>
-    		<echo message="Build MineClient"/>
-    		<jar destfile="dist/MineshafterSquared-Client.jar" basedir="bin">
-    			<manifest>
-    				<attribute name="Manifest-Version" value="1.0" />
-    				<attribute name="Class-Path" value="." />
-    				<attribute name="Main-Class" value="mineshafter.programs.MineClient" />
-    			</manifest>
-    		</jar>
-    		<echo message="Build MineServer"/>
-    		<jar destfile="dist/MineshafterSquared-Server.jar" basedir="bin">
-    			<manifest>
-    				<attribute name="Manifest-Version" value="1.0" />
-    				<attribute name="Class-Path" value="." />
-    				<attribute name="Main-Class" value="mineshafter.programs.MineServer" />
-    			</manifest>
-    		</jar>
-    	</target>
+    <target depends="init,clean" name="build" />
+	
+	<echo message="Build Start"/>
+    <target depends="init" name="build-project">
+    	<echo message="Compile"/>
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="Mineshafter-Squared-Proxy.classpath"/>
+        </javac>
     </target>
+	<!-- Make Jars -->
+	<target depends="build-project" name="compress">
+		<echo message="Compress"/>
+		<echo message="Build MineClient"/>
+		<jar destfile="dist/MineshafterSquared-Client.jar" basedir="bin">
+			<manifest>
+				<attribute name="Manifest-Version" value="1.0" />
+				<attribute name="Class-Path" value="." />
+				<attribute name="Main-Class" value="mineshafter.programs.MineClient" />
+			</manifest>
+		</jar>
+		<echo message="Build MineServer"/>
+		<jar destfile="dist/MineshafterSquared-Server.jar" basedir="bin">
+			<manifest>
+				<attribute name="Manifest-Version" value="1.0" />
+				<attribute name="Class-Path" value="." />
+				<attribute name="Main-Class" value="mineshafter.programs.MineServer" />
+			</manifest>
+		</jar>
+	</target>
 </project>
