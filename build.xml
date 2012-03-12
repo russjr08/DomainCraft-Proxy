@@ -38,6 +38,7 @@
 	<target depends="build" name="compress">
 		<echo message="Compress"/>
 		<echo message="Copy Util.class into bin" />
+		<!-- Copy Util.class -->
 		<copy file="Util.class" todir="bin" />
 		<echo message="Build MineClient"/>
 		<jar destfile="dist/MineshafterSquared-Client.jar" basedir="bin">
@@ -56,13 +57,23 @@
 			</manifest>
 		</jar>
 	</target>
-	<!-- Create Windows Launcher -->
+	<!-- Create Launchers -->
 	<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j.dir}/launch4j.jar :${launch4j.dir}/lib/xstream.jar" />
 	<target name="launchers">
+		<!-- Windows Launcher -->
+		<echo message="Use Launch4J To Create Windows Launcher" />
 		<launch4j>
-			<config headerType="gui" icon="img/MS2.ico" outfile="dist/MineshafterSquared-Client.exe" jarPath="dist/MineshafterSquared-Client.jar" >
+			<config headerType="gui" icon="lib/img/MS2.ico" outfile="dist/MineshafterSquared-Client.exe" jarPath="dist/MineshafterSquared-Client.jar" >
 		    	<jre minVersion="1.6.0" maxVersion="1.7.0" initialHeapSize="512" maxHeapSize="1024" />
 		  	</config>
 		</launch4j>
+		<!-- Mac Launcher -->
+		<echo message="Use Launch4J To Create Windows Launcher" />
+		<!-- Copy App Shell -->
+		<copy todir="dist">
+			<fileset dir="lib/mac/MineshafterSquared-Client.app" />
+		</copy>
+		<copy file="dist/MineshafterSquared-Client.jar" todir="dist/MineshafterSquared-Client.app" />
+		<zip destfile="dist/MineshafterSquared-Client.zip" basedir="dist/MineshafterSquared-Client.app" />
 	</target>
 </project>
