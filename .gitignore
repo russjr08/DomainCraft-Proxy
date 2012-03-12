@@ -4,3 +4,4 @@
 *.properties
 world/
 bin/
++.settings/

@@ -94,6 +94,7 @@ public class MineProxyHandler extends Thread {
 		Matcher getversionMatcher = MineProxy.GETVERSION_URL.matcher(url);
 		Matcher joinserverMatcher = MineProxy.JOINSERVER_URL.matcher(url);
 		Matcher checkserverMatcher = MineProxy.CHECKSERVER_URL.matcher(url);
+		Matcher audiofix_url = MineProxy.AUDIOFIX_URL.matcher(url);
 		
 		byte[] data = null;
 		String params;
@@ -174,6 +175,7 @@ public class MineProxyHandler extends Thread {
 			url = "http://" + MineProxy.authServer + "/game/joinserver" + params;
 			System.out.println("To: " + url);
 			data = getRequest(url);
+			System.out.println(data);
 		}
 		// If Check Server Request
 		else if(checkserverMatcher.matches()) {
@@ -182,6 +184,13 @@ public class MineProxyHandler extends Thread {
 			params = checkserverMatcher.group(1);
 			//url = "http://" + MineProxy.authServer + "/game/checkserver.php" + params;
 			url = "http://" + MineProxy.authServer + "/game/checkserver" + params;
+			System.out.println("To: " + url);
+			
+			data = getRequest(url);
+			System.out.println(data);
+		} else if(audiofix_url.matches()) {  // this is to fix the audio problems
+			System.out.println("Audio Fix");
+			url = "http://s3.amazonaws.com/MinecraftResources/";
 			System.out.println("To: " + url);
 			
 			data = getRequest(url);
