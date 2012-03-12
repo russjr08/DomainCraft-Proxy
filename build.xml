@@ -68,12 +68,13 @@
 		  	</config>
 		</launch4j>
 		<!-- Mac Launcher -->
-		<echo message="Use Launch4J To Create Windows Launcher" />
+		<echo message="Create and Zip the Mac Launcher" />
 		<!-- Copy App Shell -->
 		<copy todir="dist/mac" enablemultiplemappings="true">
 			<fileset dir="lib/mac" />
 		</copy>
-		<copy file="dist/MineshafterSquared-Client.jar" todir="dist/mac/MineshafterSquared-Client.app" />
+		<copy file="dist/MineshafterSquared-Client.jar" todir="dist/mac/MineshafterSquared-Client.app/Contents/Resources/Java/" />
 		<zip destfile="dist/MineshafterSquared-Client.zip" basedir="dist/mac/" />
+		<delete dir="dist/mac" />
 	</target>
 </project>
