@@ -14,11 +14,13 @@ public class ServerListener extends Thread {
 	protected ServerSocket socket;
 	protected final int port = 9005;
 	protected Socket connection;
-	protected BufferedReader input;
-	protected DataOutputStream response;
-	protected InputStreamReader inputStream;
 	protected String command = new String();
 	protected String responseString = new String();
+	
+	public static void main(String[] args)
+	{
+		(new ServerListener()).start();
+	}
 	
 	@Override
 	public void run() {
@@ -30,23 +32,26 @@ public class ServerListener extends Thread {
 			
 			while(true)
 			{
+				Logger.log("Server Loop");
 				// open socket
+				Logger.log("Wait for Input");
 				connection = socket.accept();
 				// get input reader
-				inputStream = new InputStreamReader(connection.getInputStream());
-				input = new BufferedReader(inputStream);
+				InputStreamReader inputStream = new InputStreamReader(connection.getInputStream());
+				BufferedReader input = new BufferedReader(inputStream);
 				// get output handler
-				response = new DataOutputStream(connection.getOutputStream());
+				DataOutputStream response = new DataOutputStream(connection.getOutputStream());
 				
-				// wait for input
+				// get input
 				command = input.readLine();
 				
 				// process input
-				responseString = command + " It Works!";
+				Logger.log("Response");
+				responseString = command + " MC2 It Works!";
 				
 				// send response
 				response.writeBytes(responseString);
-				
+				response.flush();
 			}
 			
 		} catch (IOException e) {
