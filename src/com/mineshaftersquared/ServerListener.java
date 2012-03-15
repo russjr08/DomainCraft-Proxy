@@ -32,9 +32,7 @@ public class ServerListener extends Thread {
 			
 			while(true)
 			{
-				Logger.log("Server Loop");
 				// open socket
-				Logger.log("Wait for Input");
 				connection = socket.accept();
 				// get input reader
 				InputStreamReader inputStream = new InputStreamReader(connection.getInputStream());
@@ -46,12 +44,13 @@ public class ServerListener extends Thread {
 				command = input.readLine();
 				
 				// process input
-				Logger.log("Response");
+				Logger.log("Command: " + command);
 				responseString = command + " MC2 It Works!";
 				
 				// send response
 				response.writeBytes(responseString);
 				response.flush();
+				response.close();
 			}
 			
 		} catch (IOException e) {
