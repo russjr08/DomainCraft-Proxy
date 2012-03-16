@@ -17,9 +17,24 @@ public class ServerListener extends Thread {
 	protected String command = new String();
 	protected String responseString = new String();
 	
-	public static void main(String[] args)
+	// only used to make testing easier
+	/*public static void main(String[] args)
 	{
 		(new ServerListener()).start();
+	}*/
+	
+	public String process(ServerAPICommand command)
+	{
+		String response = new String();
+		switch(command)
+		{
+			case ping:
+				long unixTime = System.currentTimeMillis() / 1000L;
+				response += unixTime;
+			break;
+		}
+		
+		return response + "\n";
 	}
 	
 	@Override
@@ -42,14 +57,26 @@ public class ServerListener extends Thread {
 				
 				// get input
 				command = input.readLine();
+				Logger.log("Server API Command: " + command);
+				
+				// pre-process input
 				
 				// process input
-				Logger.log("Command: " + command);
-				responseString = command + " MC2 It Works!";
+				ServerAPICommand serverCommand;
+				try{
+					serverCommand = ServerAPICommand.valueOf(command);
+				} catch (IllegalArgumentException e) {
+					Logger.log("Invalid Command: " + command);
+					response.close();
+					continue;
+				}
+				
+				responseString = process(serverCommand);
 				
 				// send response
 				response.writeBytes(responseString);
 				response.flush();
+				
 				response.close();
 			}
 			
