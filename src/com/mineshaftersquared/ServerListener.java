@@ -4,8 +4,12 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
+
+import mineshafter.util.SimpleRequest;
 
 import com.mineshaftersquared.util.Logger;
 
@@ -16,12 +20,6 @@ public class ServerListener extends Thread {
 	protected Socket connection;
 	protected String command = new String();
 	protected String responseString = new String();
-	
-	// only used to make testing easier
-	/*public static void main(String[] args)
-	{
-		(new ServerListener()).start();
-	}*/
 	
 	public String process(ServerAPICommand command)
 	{

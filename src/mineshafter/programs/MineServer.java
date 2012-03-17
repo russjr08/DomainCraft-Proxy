@@ -29,7 +29,7 @@ public class MineServer {
 			//*> updateInfo string for use with the open mineshaftersquared auth
 			//*> server is "http://" + authServer + "/update.php?name=server"
 			String verstring = new String(SimpleRequest.get(new URL("http://" + authServer + "/update/server")));
-
+			
 			// If server does not return anything, set version to 0
 			if (verstring.isEmpty()) {
 				verstring = "0";
