@@ -8,25 +8,28 @@ import java.lang.reflect.Method;
 import java.util.jar.Attributes;
 import javax.swing.JOptionPane;
 
+import com.mineshaftersquared.ServerListener;
+import com.mineshaftersquared.util.Logger;
+
 import mineshafter.proxy.MineProxy;
 import mineshafter.util.Resources;
 import mineshafter.util.SimpleRequest;
 
 public class MineServer {
-	protected static float VERSION = 3.1f; // really 3.0 but keeping this for
+	protected static float VERSION = 3.2f; // really 3.0 but keeping this for
 											// server compatibility reasons for
 											// now.
 	
 	protected static String authServer = Resources.loadString("auth").trim();
+	protected static final String logName = "[MineshafterSquared]";
 
 	public static void main(String[] args) {
+		// Get latest version number from server & see if there is an update
 		try {
-			// Get latest version number from server
-			// updateInfo string for use with the open mineshaftersquared auth
-			// server is "http://" + authServer + "/update.php?name=server"
-			String verstring = new String(SimpleRequest.get(new URL("http://"
-					+ authServer + "/update/server")));
-
+			//*> updateInfo string for use with the open mineshaftersquared auth
+			//*> server is "http://" + authServer + "/update.php?name=server"
+			String verstring = new String(SimpleRequest.get(new URL("http://" + authServer + "/update/server")));
+			
 			// If server does not return anything, set version to 0
 			if (verstring.isEmpty()) {
 				verstring = "0";
@@ -41,25 +44,34 @@ public class MineServer {
 			}
 
 			// Display version to console
-			System.out.println("Current proxy version: " + VERSION);
-			System.out.println("Gotten proxy version: " + version);
+			Logger.log("Current proxy version: " + VERSION);
+			Logger.log("Gotten proxy version: " + version);
 
 			// Check to see if there is a newer version
 			if (VERSION < version) {
 				// Need update, see about auto downloading in the future
-				JOptionPane.showMessageDialog(null,
-						"A new version of Mineshafter Squared is available at http://"
-								+ authServer + "\nGo get it.",
-						"Update Available", JOptionPane.PLAIN_MESSAGE);
+				JOptionPane.showMessageDialog(null, "A new version of Mineshafter Squared is available at http://" + authServer + "\nPlease download it and re-launch the server.", 
+													"Update Available", 
+													JOptionPane.PLAIN_MESSAGE);
+				// shut down the server
 				System.exit(0);
 			}
 
 		} catch (Exception e) {
-			System.out.println("Error while updating:");
+			Logger.log("Error while updating:");
 			e.printStackTrace();
-			// System.exit(1);
+			System.exit(1);
 		}
-
+		
+		// setup Mineshafter Squared listener
+		try{
+			ServerListener listener = new ServerListener();
+			listener.start();
+		} catch(Exception e) {
+			Logger.log("Listener Thread Down");
+		}
+		
+		
 		try {
 			// Create MineProxy
 			MineProxy proxy = new MineProxy(VERSION, authServer);
@@ -81,25 +93,22 @@ public class MineServer {
 				load = "minecraft_server.jar";
 			}
 
-			Attributes attributes = new JarFile(load).getManifest()
-					.getMainAttributes();
+			Attributes attributes = new JarFile(load).getManifest().getMainAttributes();
 			String name = attributes.getValue("Main-Class");
-
+			
 			URLClassLoader cl = null;
 			Class<?> cls = null;
 			Method main = null;
 			try {
-				cl = new URLClassLoader(new URL[] { new File(load).toURI()
-						.toURL() });
+				cl = new URLClassLoader(new URL[] { new File(load).toURI().toURL() });
 				cls = cl.loadClass(name);
-				main = cls.getDeclaredMethod("main",
-						new Class[] { String[].class });
+				main = cls.getDeclaredMethod("main", new Class[] { String[].class });
 			} catch (Exception e) {
-				System.out.println("Error loading class " + name + " from jar "
-						+ load + ":");
+				System.out.println("Error loading class " + name + " from jar " + load + ":");
 				e.printStackTrace();
 				System.exit(1);
 			}
+			
 			String[] nargs;
 			try {
 				nargs = new String[args.length - 1];
@@ -107,9 +116,10 @@ public class MineServer {
 			} catch (Exception e) {
 				nargs = new String[0];
 			}
+			
 			main.invoke(cls, new Object[] { nargs });
 		} catch (Exception e) {
-			System.out.println("Something bad happened:");
+			Logger.log("Something bad happened:");
 			e.printStackTrace();
 			System.exit(1);
 		}
