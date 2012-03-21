@@ -96,7 +96,6 @@ public class MineProxyHandler extends Thread {
 		Matcher checkserverMatcher = MineProxy.CHECKSERVER_URL.matcher(url);
 		Matcher audiofix_url = MineProxy.AUDIOFIX_URL.matcher(url);
 		Matcher dl_bukkit = MineProxy.DL_BUKKIT.matcher(url);
-		Matcher heartbeat = MineProxy.HEARTBEAT.matcher(url);
 		
 		byte[] data = null;
 		String params;
@@ -197,9 +196,6 @@ public class MineProxyHandler extends Thread {
 			data = getRequest(url);
 		} else if(dl_bukkit.matches()) {
 			System.out.println("Bukkit Fix");
-			data = getRequest(url);
-		} else if(heartbeat.matches()){
-			System.out.println("HEARTBEAT!!!!!!!!!!");
 			data = getRequest(url);
 		}
 		// If Any other network request

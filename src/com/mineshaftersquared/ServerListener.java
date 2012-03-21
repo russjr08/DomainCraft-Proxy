@@ -4,12 +4,8 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
-
-import mineshafter.util.SimpleRequest;
 
 import com.mineshaftersquared.util.Logger;
 
