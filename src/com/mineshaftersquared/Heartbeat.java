@@ -3,7 +3,9 @@ package com.mineshaftersquared;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.TimeUnit;
 
+import com.mineshaftersquared.util.ConsoleInput;
 import com.mineshaftersquared.util.Logger;
 import mineshafter.util.Resources;
 import mineshafter.util.SimpleRequest;
@@ -19,9 +21,13 @@ public class Heartbeat extends Thread {
 	protected enum userInputType {Y, N, USER_NOT_FOUND, FAILED, OK}
 	protected String sendData = new String();
 	
-	public static void main(String[] args)
+	public static void main(String[] args) throws InterruptedException
 	{
-		(new Heartbeat()).start();
+		//(new Heartbeat()).start();
+
+	    ConsoleInput con = new ConsoleInput(5, 10, TimeUnit.SECONDS);
+	    String input = con.readLine();
+	    System.out.println("Done. Your input was: " + input);
 	}
 	
 	public void run() {
