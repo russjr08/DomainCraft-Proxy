@@ -7,10 +7,7 @@ import java.util.jar.JarFile;
 import java.lang.reflect.Method;
 import java.util.jar.Attributes;
 import javax.swing.JOptionPane;
-
-import com.mineshaftersquared.ServerListener;
 import com.mineshaftersquared.util.Logger;
-
 import mineshafter.proxy.MineProxy;
 import mineshafter.util.Resources;
 import mineshafter.util.SimpleRequest;
@@ -44,8 +41,8 @@ public class MineServer {
 			}
 
 			// Display version to console
-			Logger.log("Current proxy version: " + VERSION);
-			Logger.log("Gotten proxy version: " + version);
+			Logger.logln("Current proxy version: " + VERSION);
+			Logger.logln("Gotten proxy version: " + version);
 
 			// Check to see if there is a newer version
 			if (VERSION < version) {
@@ -58,17 +55,17 @@ public class MineServer {
 			}
 
 		} catch (Exception e) {
-			Logger.log("Error while updating:");
+			Logger.logln("Error while updating:");
 			e.printStackTrace();
 			System.exit(1);
 		}
 		
 		// setup Mineshafter Squared listener
 		try{
-			ServerListener listener = new ServerListener();
-			listener.start();
+			//ServerListener listener = new ServerListener();
+			//listener.start();
 		} catch(Exception e) {
-			Logger.log("Listener Thread Down");
+			Logger.logln("Listener Thread Down");
 		}
 		
 		
@@ -119,7 +116,7 @@ public class MineServer {
 			
 			main.invoke(cls, new Object[] { nargs });
 		} catch (Exception e) {
-			Logger.log("Something bad happened:");
+			Logger.logln("Something bad happened:");
 			e.printStackTrace();
 			System.exit(1);
 		}
