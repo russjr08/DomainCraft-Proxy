@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 
-import com.mineshaftersquared.util.ConsoleInput;
+import com.mineshaftersquared.util.ConsoleTimeoutInput;
 import com.mineshaftersquared.util.Logger;
 import mineshafter.util.Resources;
 import mineshafter.util.SimpleRequest;
@@ -18,16 +18,12 @@ public class Heartbeat extends Thread {
 	protected boolean enabled = true;
 	protected int interval = 1800000;
 	protected enum commands {DONE, INTERVAL, SET_INTERVAL, INIT, EXIT, CREATE}
-	protected enum userInputType {Y, N, USER_NOT_FOUND, FAILED, OK}
+	protected enum userInputType {Y, N, USER_NOT_FOUND, FAILED, OK, EXIT, CREATE, INIT}
 	protected String sendData = new String();
 	
 	public static void main(String[] args) throws InterruptedException
 	{
-		//(new Heartbeat()).start();
-
-	    ConsoleInput con = new ConsoleInput(5, 10, TimeUnit.SECONDS);
-	    String input = con.readLine();
-	    System.out.println("Done. Your input was: " + input);
+		(new Heartbeat()).start();
 	}
 	
 	public void run() {
@@ -54,21 +50,17 @@ public class Heartbeat extends Thread {
 					break;
 					
 					case INIT:
-						Logger.logln("Server List Updater Shutting Down");
+						interval = Integer.parseInt(responseArray[1]);
+						Logger.logln("Server List Init");
 					break;
 					
 					case CREATE:
-						createServer();
-					break;
-					
-					// interval commands
-					case INTERVAL:
-						sendData = "interval/" + interval;
+						if(!createServer())
+							enabled = false;
 					break;
 					
 					case SET_INTERVAL:
 						interval = Integer.parseInt(responseArray[1]);
-						sendData = "interval/confirm/" + interval;
 					break;
 					
 					case EXIT:
@@ -90,7 +82,7 @@ public class Heartbeat extends Thread {
 		
 		if(request.isEmpty())
 		{
-			request = baseRequest + "/" + mainUpdateCommand;
+			request = baseRequest + "/" + mainUpdateCommand + "/" + interval;
 		}
 		else
 		{
@@ -113,32 +105,19 @@ public class Heartbeat extends Thread {
 		Boolean inputLoop = true;
 		String userInput = new String();
 		Logger.logln("New Server Detected!");
-		Logger.log("Would you like to add this server to the Mineshafter Squared Server List? (Y/N):");
 		
-		while(inputLoop)
-		{
-			try {
-				userInput = br.readLine().toUpperCase();
-				
-				if(!userInput.trim().isEmpty())
-				{
-					userInputType answer = userInputType.valueOf(userInput);
-				
-					if(answer == userInputType.Y)
-						inputLoop = false;
-					else if(answer == userInputType.N)
-						return false;
-					else
-						throw new IOException();
-				}
-				else
-					throw new IOException();
-					
-			} catch (IOException e) {
-				Logger.log("Bad Input: Please Enter (Y or N):");
-			}
+		Logger.logln("Press Enter to Begin Setup");
+	    ConsoleTimeoutInput con = new ConsoleTimeoutInput(1, 5, TimeUnit.SECONDS);
+	    String timeoutInput;
+		try {
+			timeoutInput = con.readLine();
+		} catch (InterruptedException e1) {
+			return false;
 		}
-		
+	    
+	    if(timeoutInput == null)
+	    	return false;
+								
 		// get admin username
 		inputLoop = true;
 		userInput = new String();
@@ -192,6 +171,26 @@ public class Heartbeat extends Thread {
 		{
 			try {
 				userInput = br.readLine();
+				String[] response = sendBeat("init");
+				userInputType input = userInputType.valueOf(response[0]);
+				
+				switch(input)
+				{
+					case EXIT:
+						inputLoop = false;
+					break;
+					
+					case INIT:
+						interval = Integer.parseInt(response[1]);
+						Logger.logln("Server List Init");
+						inputLoop = false;
+					break;
+					
+					case CREATE:
+						Logger.logln("Can not find config.  Please save your config on the website.");
+						Logger.logln("[Press Enter to Continue]");
+					break;
+				}
 				
 			} catch (IOException e) {
 				
