@@ -7,6 +7,7 @@ import java.util.jar.JarFile;
 import java.lang.reflect.Method;
 import java.util.jar.Attributes;
 import javax.swing.JOptionPane;
+import com.mineshaftersquared.Heartbeat;
 import com.mineshaftersquared.util.Logger;
 import mineshafter.proxy.MineProxy;
 import mineshafter.util.Resources;
@@ -60,12 +61,17 @@ public class MineServer {
 			System.exit(1);
 		}
 		
-		// setup Mineshafter Squared listener
+		// setup Mineshafter Squared Heart Beat
 		try{
-			//ServerListener listener = new ServerListener();
-			//listener.start();
+			Heartbeat hb = new Heartbeat();
+			hb.start();
+			
+			while(!hb.setup)
+			{
+				Thread.sleep(200);
+			}
 		} catch(Exception e) {
-			Logger.logln("Listener Thread Down");
+			Logger.logln("Server List Updater Crashed");
 		}
 		
 		

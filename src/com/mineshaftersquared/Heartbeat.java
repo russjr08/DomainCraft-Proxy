@@ -21,10 +21,7 @@ public class Heartbeat extends Thread {
 	protected enum userInputType {Y, N, USER_NOT_FOUND, FAILED, OK, EXIT, CREATE, INIT}
 	protected String sendData = new String();
 	
-	public static void main(String[] args) throws InterruptedException
-	{
-		(new Heartbeat()).start();
-	}
+	public boolean setup = false;
 	
 	public void run() {
 		try {
@@ -51,6 +48,7 @@ public class Heartbeat extends Thread {
 					
 					case INIT:
 						interval = Integer.parseInt(responseArray[1]);
+						this.setup = true;
 						Logger.logln("Server List Init");
 					break;
 					
@@ -71,7 +69,10 @@ public class Heartbeat extends Thread {
 				
 			}
 			
+			this.setup = true;
+			
 		} catch (InterruptedException e) {
+			this.setup = true;
 			Logger.logln("Heartbeat Crashed");
 		}
 	}
