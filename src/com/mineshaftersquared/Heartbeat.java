@@ -55,6 +55,7 @@ public class Heartbeat extends Thread {
 					case CREATE:
 						if(!createServer())
 							enabled = false;
+						this.setup = true;
 					break;
 					
 					case SET_INTERVAL:
