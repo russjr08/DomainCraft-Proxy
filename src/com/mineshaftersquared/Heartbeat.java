@@ -91,7 +91,6 @@ public class Heartbeat extends Thread {
 			request = baseRequest + "/" + request;
 		}
 		
-		Logger.logln("Heart Beat: " + request);
 		String response = new String(SimpleRequest.get(request));
 		String[] returnArr = response.split(":");
 		
