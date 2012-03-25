@@ -2,6 +2,7 @@ package mineshafter.programs;
 
 import java.io.File;
 import java.net.URL;
+import sun.applet.Main;
 import java.net.URLClassLoader;
 import java.util.jar.JarFile;
 import java.lang.reflect.Method;
@@ -13,12 +14,11 @@ import mineshafter.proxy.MineProxy;
 import mineshafter.util.Resources;
 import mineshafter.util.SimpleRequest;
 
+@SuppressWarnings("restriction")
 public class MineServer {
-	protected static float VERSION = 3.2f; // really 3.0 but keeping this for
-											// server compatibility reasons for
-											// now.
+	protected static float VERSION = 3.4f;
 	
-	protected static String authServer = Resources.loadString("auth").trim();
+	protected static String authServer =  Resources.loadString("auth").trim();
 	protected static final String logName = "[MineshafterSquared]";
 
 	public static void main(String[] args) {
@@ -26,12 +26,17 @@ public class MineServer {
 		try {
 			//*> updateInfo string for use with the open mineshaftersquared auth
 			//*> server is "http://" + authServer + "/update.php?name=server"
-			String verstring = new String(SimpleRequest.get(new URL("http://" + authServer + "/update/server")));
+			byte[] verdata = SimpleRequest.get("http://" + authServer + "/update/server");
 			
 			// If server does not return anything, set version to 0
-			if (verstring.isEmpty()) {
+			String verstring = new String();
+			if(verdata == null) 
 				verstring = "0";
-			}
+			else 
+				verstring = new String(verdata);
+			
+			if (verstring.isEmpty())
+				verstring = "0";
 
 			// Parse the version string out to a float
 			float version;
@@ -103,7 +108,7 @@ public class MineServer {
 			Class<?> cls = null;
 			Method main = null;
 			try {
-				cl = new URLClassLoader(new URL[] { new File(load).toURI().toURL() });
+				cl = new URLClassLoader(new URL[] { new File(load).toURI().toURL() }, Main.class.getClassLoader());
 				cls = cl.loadClass(name);
 				main = cls.getDeclaredMethod("main", new Class[] { String[].class });
 			} catch (Exception e) {
