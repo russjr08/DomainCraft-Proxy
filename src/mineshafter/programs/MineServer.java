@@ -66,20 +66,6 @@ public class MineServer {
 			System.exit(1);
 		}
 		
-		// setup Mineshafter Squared Heart Beat
-		try{
-			Heartbeat hb = new Heartbeat();
-			hb.start();
-			
-			while(!hb.setup)
-			{
-				Thread.sleep(200);
-			}
-		} catch(Exception e) {
-			Logger.logln("Server List Updater Crashed");
-		}
-		
-		
 		try {
 			// Create MineProxy
 			MineProxy proxy = new MineProxy(VERSION, authServer);
