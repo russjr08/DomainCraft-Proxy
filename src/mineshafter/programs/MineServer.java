@@ -8,7 +8,6 @@ import java.util.jar.JarFile;
 import java.lang.reflect.Method;
 import java.util.jar.Attributes;
 import javax.swing.JOptionPane;
-import com.mineshaftersquared.Heartbeat;
 import com.mineshaftersquared.util.Logger;
 import mineshafter.proxy.MineProxy;
 import mineshafter.util.Resources;
@@ -16,7 +15,7 @@ import mineshafter.util.SimpleRequest;
 
 @SuppressWarnings("restriction")
 public class MineServer {
-	protected static float VERSION = 3.4f;
+	protected static float VERSION = 3.5f;
 	
 	protected static String authServer =  Resources.loadString("auth").trim();
 	protected static final String logName = "[MineshafterSquared]";
@@ -53,6 +52,7 @@ public class MineServer {
 			// Check to see if there is a newer version
 			if (VERSION < version) {
 				// Need update, see about auto downloading in the future
+				Logger.logln("A new version of Mineshafter Squared is available at http://" + authServer + "\nPlease download it and re-launch the server.");
 				JOptionPane.showMessageDialog(null, "A new version of Mineshafter Squared is available at http://" + authServer + "\nPlease download it and re-launch the server.", 
 													"Update Available", 
 													JOptionPane.PLAIN_MESSAGE);
