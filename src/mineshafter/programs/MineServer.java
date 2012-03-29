@@ -2,25 +2,22 @@ package mineshafter.programs;
 
 import java.io.File;
 import java.net.URL;
+import sun.applet.Main;
 import java.net.URLClassLoader;
 import java.util.jar.JarFile;
 import java.lang.reflect.Method;
 import java.util.jar.Attributes;
 import javax.swing.JOptionPane;
-
-import com.mineshaftersquared.ServerListener;
 import com.mineshaftersquared.util.Logger;
-
 import mineshafter.proxy.MineProxy;
 import mineshafter.util.Resources;
 import mineshafter.util.SimpleRequest;
 
+@SuppressWarnings("restriction")
 public class MineServer {
-	protected static float VERSION = 3.2f; // really 3.0 but keeping this for
-											// server compatibility reasons for
-											// now.
+	protected static float VERSION = 3.5f;
 	
-	protected static String authServer = Resources.loadString("auth").trim();
+	protected static String authServer =  Resources.loadString("auth").trim();
 	protected static final String logName = "[MineshafterSquared]";
 
 	public static void main(String[] args) {
@@ -28,12 +25,17 @@ public class MineServer {
 		try {
 			//*> updateInfo string for use with the open mineshaftersquared auth
 			//*> server is "http://" + authServer + "/update.php?name=server"
-			String verstring = new String(SimpleRequest.get(new URL("http://" + authServer + "/update/server")));
+			byte[] verdata = SimpleRequest.get("http://" + authServer + "/update/server");
 			
 			// If server does not return anything, set version to 0
-			if (verstring.isEmpty()) {
+			String verstring = new String();
+			if(verdata == null) 
 				verstring = "0";
-			}
+			else 
+				verstring = new String(verdata);
+			
+			if (verstring.isEmpty())
+				verstring = "0";
 
 			// Parse the version string out to a float
 			float version;
@@ -44,12 +46,13 @@ public class MineServer {
 			}
 
 			// Display version to console
-			Logger.log("Current proxy version: " + VERSION);
-			Logger.log("Gotten proxy version: " + version);
+			Logger.logln("Current proxy version: " + VERSION);
+			Logger.logln("Gotten proxy version: " + version);
 
 			// Check to see if there is a newer version
 			if (VERSION < version) {
 				// Need update, see about auto downloading in the future
+				Logger.logln("A new version of Mineshafter Squared is available at http://" + authServer + "\nPlease download it and re-launch the server.");
 				JOptionPane.showMessageDialog(null, "A new version of Mineshafter Squared is available at http://" + authServer + "\nPlease download it and re-launch the server.", 
 													"Update Available", 
 													JOptionPane.PLAIN_MESSAGE);
@@ -58,19 +61,10 @@ public class MineServer {
 			}
 
 		} catch (Exception e) {
-			Logger.log("Error while updating:");
+			Logger.logln("Error while updating:");
 			e.printStackTrace();
 			System.exit(1);
 		}
-		
-		// setup Mineshafter Squared listener
-		try{
-			ServerListener listener = new ServerListener();
-			listener.start();
-		} catch(Exception e) {
-			Logger.log("Listener Thread Down");
-		}
-		
 		
 		try {
 			// Create MineProxy
@@ -100,7 +94,7 @@ public class MineServer {
 			Class<?> cls = null;
 			Method main = null;
 			try {
-				cl = new URLClassLoader(new URL[] { new File(load).toURI().toURL() });
+				cl = new URLClassLoader(new URL[] { new File(load).toURI().toURL() }, Main.class.getClassLoader());
 				cls = cl.loadClass(name);
 				main = cls.getDeclaredMethod("main", new Class[] { String[].class });
 			} catch (Exception e) {
@@ -119,7 +113,7 @@ public class MineServer {
 			
 			main.invoke(cls, new Object[] { nargs });
 		} catch (Exception e) {
-			Logger.log("Something bad happened:");
+			Logger.logln("Something bad happened:");
 			e.printStackTrace();
 			System.exit(1);
 		}

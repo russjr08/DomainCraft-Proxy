@@ -2,7 +2,7 @@ package mineshafter.proxy;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -19,73 +19,48 @@ import java.util.regex.Matcher;
 import mineshafter.util.Streams;
 
 public class MineProxyHandler extends Thread {
-	private BufferedReader fromClient;
+	private DataInputStream fromClient;
 	private DataOutputStream toClient;
 	private Socket connection;
 	
 	private MineProxy proxy;
 	
+	private static String[] BLACKLISTED_HEADERS = new String[]{"Connection", "Proxy-Connection", "Transfer-Encoding"};
+	
 	public MineProxyHandler(MineProxy proxy, Socket conn) throws IOException {
-		this.setName("MineProxyHandler Thread");
+		setName("MineProxyHandler Thread");
 		
 		this.proxy = proxy;
 		
-		this.connection = conn;
-		this.fromClient = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		this.toClient = new DataOutputStream(conn.getOutputStream());
+		connection = conn;
+		fromClient = new DataInputStream(conn.getInputStream());
+		toClient = new DataOutputStream(conn.getOutputStream());
 	}
 	
 	public void run() {
-		/*
-		 * Get request location
-		 * rewrite
-		 * check for cloak or skin
-		 *   check for cache
-		 *     return cache
-		 *   else request
-		 *     save to cache
-		 *     return
-		 * check for asset server
-		 *   kill connection to get it to not use proxy
-		 * check for auth
-		 *   get auth answer
-		 *   return
-		 */
-		
-		String header = null;
 		HashMap<String, String> headers = new HashMap<String, String>();
-		String url = null;
-		String method = null;
 		
-		// Read the incoming request for the proxy
-		try {
-			String[] requestLine = this.fromClient.readLine().split(" ");
-			method = requestLine[0].trim().toUpperCase();
-			url = requestLine[1].trim();
-			
-		} catch(IOException e) {
-			System.out.println("Unable to read request");
-			e.printStackTrace();
-			return;
-		}
-		System.out.println("Request: " + method + " " + url);
-		
+		// Read the incoming request
+	    String[] requestLine = readUntil(fromClient, '\n').split(" ");
+	    String method = requestLine[0].trim().toUpperCase();
+	    String url = requestLine[1].trim();
+	    
+	 	System.out.println("Request: " + method + " " + url);
+	 	
 		// Read the incoming headers
 		// System.out.println("Headers:");
-		try {
-			do {
-				header = this.fromClient.readLine().trim();
-				//System.out.println("H: " + header + ", " + header.length());
-				int splitPoint = header.indexOf(":");
-				if(splitPoint != -1) {
-					headers.put(header.substring(0, splitPoint).toLowerCase().trim(), header.substring(splitPoint + 1).trim());
-				}
-			} while(header.length() > 0);
-		} catch(IOException e) {
-			System.out.println("Unable to read headers");
-			e.printStackTrace();
-			return;
-		}
+
+	 	String header;
+		do {
+			header = readUntil(fromClient, '\n').trim();
+			// System.out.println("H: " + header + ", " + header.length());
+			int splitPoint = header.indexOf(':');
+			if (splitPoint != -1) {
+				headers.put(header.substring(0, splitPoint).toLowerCase()
+						.trim(), header.substring(splitPoint + 1).trim());
+			}
+
+		} while (header.length() > 0);
 		
 		// run matchers
 		Matcher skinMatcher = MineProxy.SKIN_URL.matcher(url);
@@ -97,6 +72,7 @@ public class MineProxyHandler extends Thread {
 		Matcher dl_bukkit = MineProxy.DL_BUKKIT.matcher(url);
 		
 		byte[] data = null;
+		String contentType = null;
 		String params;
 		
 		// If Skin Request
@@ -104,10 +80,10 @@ public class MineProxyHandler extends Thread {
 			System.out.println("Skin");
 			
 			String username = skinMatcher.group(1);
-			if(this.proxy.skinCache.containsKey(username)) { // Is the skin in the cache?
+			if(proxy.skinCache.containsKey(username)) { // Is the skin in the cache?
 				System.out.println("Skin from cache");
 				
-				data = this.proxy.skinCache.get(username); // Then get it from there
+				data = proxy.skinCache.get(username);  // Then get it from there
 			} else {
 				//url = "http://" + MineProxy.authServer + "/skin/" + username + ".png"; <-- Keep this code for API implementation
 				//url = "http://" + MineProxy.authServer + "/game/getskin.php?name=" + username;
@@ -118,7 +94,7 @@ public class MineProxyHandler extends Thread {
 				data = getRequest(url); // Then get it...
 				System.out.println("Response length: " + data.length);
 				
-				this.proxy.skinCache.put(username, data); // And put it in there
+				proxy.skinCache.put(username, data); // And put it in there
 			}
 			
 		} 
@@ -127,9 +103,9 @@ public class MineProxyHandler extends Thread {
 			System.out.println("Cloak");
 			
 			String username = cloakMatcher.group(1);
-			if(this.proxy.cloakCache.containsKey(username)) {
+			if(proxy.cloakCache.containsKey(username)) {
 				System.out.println("Cloak from cache");
-				data = this.proxy.cloakCache.get(username);
+				data = proxy.cloakCache.get(username);
 			} else {
 				//url = "http://" + MineProxy.authServer + "/cloak/get.jsp?user=" + username;
 				//url = "http://" + MineProxy.authServer + "/game/getcloak.php?user=" + username;
@@ -140,7 +116,7 @@ public class MineProxyHandler extends Thread {
 				data = getRequest(url);
 				System.out.println("Response length: " + data.length);
 				
-				this.proxy.cloakCache.put(username, data);
+				proxy.cloakCache.put(username, data);
 			}
 			
 		} 
@@ -149,13 +125,14 @@ public class MineProxyHandler extends Thread {
 			System.out.println("GetVersion");
 			
 			//url = "http://" + MineProxy.authServer + "/game/getversion.php?proxy=" + this.proxy.version;
-			url = "http://" + MineProxy.authServer + "/game/getversion/" + this.proxy.version;
+			url = "http://" + MineProxy.authServer + "/game/getversion/" + proxy.version;
 			System.out.println("To: " + url);
 			
 			try {
 				int postlen = Integer.parseInt(headers.get("content-length"));
 				char[] postdata = new char[postlen];
-				this.fromClient.read(postdata);
+				InputStreamReader reader = new InputStreamReader(fromClient);
+				reader.read(postdata);
 				
 				data = postRequest(url, new String(postdata), "application/x-www-form-urlencoded");
 				
@@ -175,7 +152,8 @@ public class MineProxyHandler extends Thread {
 			url = "http://" + MineProxy.authServer + "/game/joinserver" + params;
 			System.out.println("To: " + url);
 			data = getRequest(url);
-			System.out.println(data);
+			contentType = "text/plain";
+			// TODO There may be a bug here, keeps causing a hang in the MC thread that tries to read the data from it
 		}
 		// If Check Server Request
 		else if(checkserverMatcher.matches()) {
@@ -186,7 +164,6 @@ public class MineProxyHandler extends Thread {
 			url = "http://" + MineProxy.authServer + "/game/checkserver" + params;
 			System.out.println("To: " + url);
 			data = getRequest(url);
-			System.out.println(data);
 			
 		} else if(audiofix_url.matches()) {  // this is to fix the audio problems
 			System.out.println("Audio Fix");
@@ -211,45 +188,70 @@ public class MineProxyHandler extends Thread {
 					if(port == -1) port = 80;
 					Socket sock = new Socket(u.getHost(), port);
 					
-					Streams.pipeStreamsActive(sock.getInputStream(), this.toClient);
-					Streams.pipeStreamsActive(this.connection.getInputStream(), sock.getOutputStream());
+					Streams.pipeStreamsActive(sock.getInputStream(), toClient);
+					Streams.pipeStreamsActive(connection.getInputStream(), sock.getOutputStream());
+					// TODO Maybe put POST here instead, less to do, but would it work?
 					
-				} else if(method.equals("GET")) {
+				} else if(method.equals("GET")  || method.equals("POST")) {
 					HttpURLConnection c = (HttpURLConnection) u.openConnection(Proxy.NO_PROXY);
-					c.setRequestMethod("GET");
+					c.setRequestMethod(method);
+					boolean post = method.equals("POST");
 					
-					for(String k : headers.keySet()){
-						c.setRequestProperty(k, headers.get(k));
+					for(String k : headers.keySet()) {
+						c.setRequestProperty(k, headers.get(k)); // TODO Might need to blacklist these as well later
+					}
+					
+					if (post) {
+						c.setDoInput(true);
+						c.setDoOutput(true);
+						c.setUseCaches(false);
+						c.connect();
+						int postlen = Integer.parseInt(headers.get("content-length"));
+						byte[] postdata = new byte[postlen];
+						fromClient.read(postdata);
+						DataOutputStream os = new DataOutputStream(c.getOutputStream());
+						os.write(postdata);
 					}
 					
 					String res = "HTTP/1.0 " + c.getResponseCode() + " " + c.getResponseMessage() + "\r\n";
 					res += "Connection: close\r\nProxy-Connection: close\r\n";
 					
 					java.util.Map<String, java.util.List<String>> h = c.getHeaderFields();
+					headerloop:
 					for(String k : h.keySet()) {
-						if(k == null || k.equalsIgnoreCase("Connection") || k.equalsIgnoreCase("Proxy-Connection")) continue;
+						if(k == null) continue;
+						
+						k = k.trim();
+						
+						for(String forbiddenHeader : BLACKLISTED_HEADERS)
+						{
+							if(k.equalsIgnoreCase(forbiddenHeader)) 
+								continue headerloop;
+						}
+						
 						java.util.List<String> vals = h.get(k);
-						for(String v : vals) {
+						for(String v : vals) 
+						{
 							res += k + ": " + v + "\r\n";
 						}
 					}
 					res += "\r\n";
 					
-					// System.out.println(res);
+					//System.out.println(res);
 					
-					this.toClient.writeBytes(res);
-					int size = Streams.pipeStreams(c.getInputStream(), this.toClient);
+					toClient.writeBytes(res);
+					int size = Streams.pipeStreams(c.getInputStream(), toClient);
 					
-					this.toClient.close();
-					this.connection.close();
+					toClient.close();
+					connection.close();
 					
 					System.out.println("Piping finished, data size: " + size);
 					
-				} else if(method.equals("HEAD")) {
+				} else if (method.equals("HEAD")) {
 					HttpURLConnection c = (HttpURLConnection) u.openConnection(Proxy.NO_PROXY);
 					c.setRequestMethod("HEAD");
 					
-					for(String k : headers.keySet()){
+					for (String k : headers.keySet()){
 						c.setRequestProperty(k, headers.get(k));
 					}
 					
@@ -257,7 +259,7 @@ public class MineProxyHandler extends Thread {
 					res += "Proxy-Connection: close\r\n";
 					
 					java.util.Map<String, java.util.List<String>> h = c.getHeaderFields();
-					for(String k : h.keySet()) {
+					for (String k : h.keySet()) {
 						if(k == null) continue;
 						java.util.List<String> vals = h.get(k);
 						for(String v : vals) {
@@ -268,9 +270,9 @@ public class MineProxyHandler extends Thread {
 					
 					//System.out.println(res);
 					
-					this.toClient.writeBytes(res); // TODO exception socket write error
-					this.toClient.close();
-					this.connection.close();
+					toClient.writeBytes(res); // TODO Occasional exception socket write error
+					toClient.close();
+					connection.close();
 				} else {
 					System.out.println("UNEXPECTED REQUEST TYPE: " + method);
 				}
@@ -283,9 +285,24 @@ public class MineProxyHandler extends Thread {
 		}
 		
 		try {
-			this.toClient.writeBytes("HTTP/1.0 200 OK\r\nConnection: close\r\nProxy-Connection: close\r\nContent-Length: " + data.length + "\r\n\r\n");
-			this.toClient.write(data);
+			if (data != null) {
+				toClient.writeBytes("HTTP/1.0 200 OK\r\nConnection: close\r\nProxy-Connection: close\r\nContent-Length: "
+						+ data.length + "\r\n");
+				if (contentType != null) {
+					toClient.writeBytes("Content-Type: " + contentType + "\r\n");
+				}
+
+				toClient.writeBytes("\r\n");
+				toClient.write(data);
+				toClient.flush();
+			}
+			this.toClient.close();
 			this.connection.close();
+			fromClient.close();
+			toClient.close();
+			connection.close();
+			//System.out.println(data.length);
+			//System.out.println(new String(data));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -353,7 +370,10 @@ public class MineProxyHandler extends Thread {
 			byte[] data = grabData(new BufferedInputStream(c.getInputStream()));
 			return data;
 			
+		} catch(java.net.UnknownHostException e) {
+			System.out.println("Unable to resolve remote host, returning null");
 		} catch (MalformedURLException e) {
+			System.out.println("Bad URL when doing postRequest:");
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -378,5 +398,57 @@ public class MineProxyHandler extends Thread {
 		}
 		
 		return out.toByteArray();
+	}
+	
+
+	public static String readUntil(DataInputStream is, String endSequence) {
+		return readUntil(is, endSequence.getBytes());
+	}
+
+	public static String readUntil(DataInputStream is, char endSequence) {
+		return readUntil(is, new byte[] { (byte) endSequence });
+	}
+
+	public static String readUntil(DataInputStream is, byte endSequence) {
+		return readUntil(is, new byte[] { endSequence });
+	}
+
+	public static String readUntil(DataInputStream is, byte[] endSequence) { // If there is an edge case, make sure we can see it
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		String r = null;
+
+		try {
+			int i = 0;
+			
+			while (true) {
+				boolean end = false;
+				byte b = is.readByte(); // Read a byte
+				if (b == endSequence[i]) { // If equal to current byte of endSequence
+					if (i == endSequence.length - 1) {
+						end = true; // If we hit the end of endSequence, we're done
+					}
+					
+					i++; // Increment for next round
+				} else {
+					i = 0; // Reset
+				}
+
+				out.write(b);
+				if (end)
+					break;
+			}
+		} catch (IOException ex) {
+			System.out.println("readUntil unable to read from InputStream, endSeq: " + new String(endSequence));
+			ex.printStackTrace();
+		}
+
+		try {
+			r = out.toString("UTF-8");
+		} catch (java.io.UnsupportedEncodingException ex) {
+			System.out.println("readUntil unable to encode data: " + out.toString());
+			ex.printStackTrace();
+		}
+		
+		return r;
 	}
 }

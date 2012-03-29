@@ -1,6 +1,7 @@
 package mineshafter.programs;
 
 import java.applet.Applet;
+import sun.applet.*;
 import java.awt.Frame;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -21,15 +22,14 @@ import mineshafter.util.Resources;
 import mineshafter.util.SimpleRequest;
 import mineshafter.util.Streams;
 
+@SuppressWarnings("restriction")
 public class MineClient extends Applet {
 	private static final long serialVersionUID = 1L;
-	
-	protected static float VERSION = 3.1f;
+	protected static float VERSION = 3.4f;
 	
 	protected static String launcherDownloadURL = "https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar";
 	protected static String normalLauncherFilename = "minecraft.jar";
 	protected static String hackedLauncherFilename = "minecraft_modified.jar";
-	
 	protected static String MANIFEST_TEXT = "Manifest-Version: 1.2\nCreated-By: 1.6.0_22 (Sun Microsystems Inc.)\nMain-Class: net.minecraft.MinecraftLauncher\n";
 	
 	/* Added For MineshafterSquared */
@@ -37,7 +37,6 @@ public class MineClient extends Applet {
 	protected static String mineshaftersquaredPath;
 	protected static String gamePath;
 	protected static String versionPath;
-	
 	
 	public void init() {
 		MineClient.main(new String[0]);
@@ -155,7 +154,7 @@ public class MineClient extends Applet {
 			// if hacked game exists
 			if(new File(hackedLauncherFilename).exists()) {
 				URL u = new File(hackedLauncherFilename).toURI().toURL();
-				URLClassLoader cl = new URLClassLoader(new URL[]{u});
+				URLClassLoader cl = new URLClassLoader(new URL[]{u}, Main.class.getClassLoader());
 				
 				@SuppressWarnings("unchecked")
 				Class<Frame> launcherFrame = (Class<Frame>) cl.loadClass("net.minecraft.LauncherFrame");
