@@ -176,11 +176,11 @@ public class MineProxyHandler extends Thread {
 		} else if(dl_bukkit.matches()) {
 			System.out.println("Bukkit Fix");
 			data = getRequest(url);
-		} else if(client_snoop.matches())
+		} else if(client_snoop.matches()) // tmp for now since else does not seem to handle these dont have time to look into it
 		{
 			System.out.println("ClientSnoop");
 			params = client_snoop.group(1);
-			url = "http://" + MineProxy.authServer + "/game/snoop/client"+params;
+			url = "http://snoop\\.minecraft\\.net/client"+params;
 			
 			System.out.println("To: " + url);
 			
@@ -201,7 +201,7 @@ public class MineProxyHandler extends Thread {
 		{
 			System.out.println("ServerSnoop");
 			params = server_snoop.group(1);
-			url = "http://" + MineProxy.authServer + "/game/snoop/server"+params;
+			url = "http://snoop\\.minecraft\\.net/server"+params;
 			
 			System.out.println("To: " + url);
 			
