@@ -21,7 +21,7 @@ public class MineProxy extends Thread {
 	public static Pattern CHECKSERVER_URL = Pattern.compile("http://session\\.minecraft\\.net/game/checkserver\\.jsp(.*)");
 	public static Pattern AUDIOFIX_URL = Pattern.compile("http://s3\\.amazonaws\\.com/MinecraftResources/");
 	public static Pattern CLIENT_SNOOP = Pattern.compile("http://snoop\\.minecraft\\.net/client(.*)");
-	public static Pattern SERVER_SNOOP = Pattern.compile("http://snoop\\.minecraft\\.net/client(.*)");
+	public static Pattern SERVER_SNOOP = Pattern.compile("http://snoop\\.minecraft\\.net/server(.*)");
 	public static Pattern DL_BUKKIT = Pattern.compile("http://dl.bukkit.org/(.+?)");
 	//public static Pattern LOGIN_URL = Pattern.compile("login\\.minecraft\\.net/");
 	
