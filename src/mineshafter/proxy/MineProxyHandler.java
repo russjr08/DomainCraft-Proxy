@@ -70,6 +70,7 @@ public class MineProxyHandler extends Thread {
 		Matcher checkserverMatcher = MineProxy.CHECKSERVER_URL.matcher(url);
 		Matcher audiofix_url = MineProxy.AUDIOFIX_URL.matcher(url);
 		Matcher dl_bukkit = MineProxy.DL_BUKKIT.matcher(url);
+		Matcher client_snoop = MineProxy.CLIENT_SNOOP.matcher(url);
 		
 		byte[] data = null;
 		String contentType = null;
@@ -173,6 +174,27 @@ public class MineProxyHandler extends Thread {
 		} else if(dl_bukkit.matches()) {
 			System.out.println("Bukkit Fix");
 			data = getRequest(url);
+		} else if(client_snoop.matches())
+		{
+			System.out.println("ClientSnoop");
+			params = client_snoop.group(1);
+			url = "http://" + MineProxy.authServer + "/game/snoop/client"+params;
+			
+			System.out.println("To: " + url);
+			
+			try {
+				int postlen = Integer.parseInt(headers.get("content-length"));
+				char[] postdata = new char[postlen];
+				InputStreamReader reader = new InputStreamReader(fromClient);
+				reader.read(postdata);
+				
+				data = postRequest(url, new String(postdata), "application/x-www-form-urlencoded");
+				
+			} catch(IOException e) {
+				System.out.println("Unable to read POST data from getversion request");
+				
+				e.printStackTrace();
+			}
 		}
 		// If Any other network request
 		else {
