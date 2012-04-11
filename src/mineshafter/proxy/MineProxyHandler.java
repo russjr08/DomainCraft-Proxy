@@ -178,7 +178,6 @@ public class MineProxyHandler extends Thread {
 			data = getRequest(url);
 		} else if(client_snoop.matches()) // tmp for now since else does not seem to handle these dont have time to look into it
 		{
-			System.out.println("ClientSnoop");
 			params = client_snoop.group(1);
 			url = "http://snoop\\.minecraft\\.net/client"+params;
 			
@@ -199,7 +198,6 @@ public class MineProxyHandler extends Thread {
 			}
 		} else if(server_snoop.matches())
 		{
-			System.out.println("ServerSnoop");
 			params = server_snoop.group(1);
 			url = "http://snoop\\.minecraft\\.net/server"+params;
 			
