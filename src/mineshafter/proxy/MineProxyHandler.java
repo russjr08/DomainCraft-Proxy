@@ -256,7 +256,8 @@ public class MineProxyHandler extends Thread {
 						os.write(postdata);
 					}
 					
-					String res = "HTTP/1.0 " + c.getResponseCode() + " " + c.getResponseMessage() + "\r\n";
+					int responseCode = c.getResponseCode();
+					String res = "HTTP/1.0 " + responseCode + " " + c.getResponseMessage() + "\r\n";
 					res += "Connection: close\r\nProxy-Connection: close\r\n";
 					
 					java.util.Map<String, java.util.List<String>> h = c.getHeaderFields();
@@ -282,8 +283,11 @@ public class MineProxyHandler extends Thread {
 					
 					//System.out.println(res);
 					
-					toClient.writeBytes(res);
-					int size = Streams.pipeStreams(c.getInputStream(), toClient);
+					int size = 0;
+					if (responseCode / 100 != 5) {
+						toClient.writeBytes(res);
+						size = Streams.pipeStreams(c.getInputStream(), toClient);
+					}
 					
 					toClient.close();
 					connection.close();
@@ -329,8 +333,8 @@ public class MineProxyHandler extends Thread {
 		
 		try {
 			if (data != null) {
-				toClient.writeBytes("HTTP/1.0 200 OK\r\nConnection: close\r\nProxy-Connection: close\r\nContent-Length: "
-						+ data.length + "\r\n");
+				this.toClient.writeBytes("HTTP/1.0 200 OK\r\nConnection: close\r\nProxy-Connection: close\r\nContent-Length: " + data.length + "\r\n");
+				
 				if (contentType != null) {
 					toClient.writeBytes("Content-Type: " + contentType + "\r\n");
 				}
@@ -359,6 +363,7 @@ public class MineProxyHandler extends Thread {
 			if(code / 100 == 4) {
 				return new byte[0];
 			}
+			
 			BufferedInputStream in = new BufferedInputStream(c.getInputStream());
 			
 			return grabData(in);

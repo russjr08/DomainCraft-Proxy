@@ -63,7 +63,7 @@ public class MineServer {
 		} catch (Exception e) {
 			Logger.logln("Error while updating:");
 			e.printStackTrace();
-			System.exit(1);
+			//System.exit(1);
 		}
 		
 		try {
