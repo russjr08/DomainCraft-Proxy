@@ -15,7 +15,7 @@ import mineshafter.util.SimpleRequest;
 
 @SuppressWarnings("restriction")
 public class MineServer {
-	protected static float VERSION = 3.5f;
+	protected static float VERSION = 3.8f;
 	
 	protected static String authServer =  Resources.loadString("auth").trim();
 	protected static final String logName = "[MineshafterSquared]";
