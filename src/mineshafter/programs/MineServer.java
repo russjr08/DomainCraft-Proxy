@@ -7,65 +7,40 @@ import java.net.URLClassLoader;
 import java.util.jar.JarFile;
 import java.lang.reflect.Method;
 import java.util.jar.Attributes;
-import javax.swing.JOptionPane;
-import com.mineshaftersquared.util.Logger;
+
+import com.mineshaftersquared.Logger;
+import com.mineshaftersquared.Settings;
+
 import mineshafter.proxy.MineProxy;
-import mineshafter.util.Resources;
 import mineshafter.util.SimpleRequest;
 
 @SuppressWarnings("restriction")
 public class MineServer {
-	protected static float VERSION = 3.8f;
-	
-	protected static String authServer =  Resources.loadString("auth").trim();
-	protected static final String logName = "[MineshafterSquared]";
+	protected static String VERSION = "3.8.0";
+
+	protected static String authServer = new String();
+	protected static File mineshaftersquaredPath;
+	protected static String gamePath;
+	protected static String versionPath;
+	protected static Settings settings;
 
 	public static void main(String[] args) {
-		// Get latest version number from server & see if there is an update
-		try {
-			//*> updateInfo string for use with the open mineshaftersquared auth
-			//*> server is "http://" + authServer + "/update.php?name=server"
-			byte[] verdata = SimpleRequest.get("http://" + authServer + "/update/server");
-			
-			// If server does not return anything, set version to 0
-			String verstring = new String();
-			if(verdata == null) 
-				verstring = "0";
-			else 
-				verstring = new String(verdata);
-			
-			if (verstring.isEmpty())
-				verstring = "0";
-
-			// Parse the version string out to a float
-			float version;
-			try {
-				version = Float.parseFloat(verstring);
-			} catch (Exception e) {
-				version = 0;
-			}
-
-			// Display version to console
-			Logger.logln("Current proxy version: " + VERSION);
-			Logger.logln("Gotten proxy version: " + version);
-
-			// Check to see if there is a newer version
-			if (VERSION < version) {
-				// Need update, see about auto downloading in the future
-				Logger.logln("A new version of Mineshafter Squared is available at http://" + authServer + "\nPlease download it and re-launch the server.");
-				JOptionPane.showMessageDialog(null, "A new version of Mineshafter Squared is available at http://" + authServer + "\nPlease download it and re-launch the server.", 
-													"Update Available", 
-													JOptionPane.PLAIN_MESSAGE);
-				// shut down the server
-				System.exit(0);
-			}
-
-		} catch (Exception e) {
-			Logger.logln("Error while updating:");
-			e.printStackTrace();
-			//System.exit(1);
+		// Get Update Info
+		settings = new Settings(new File("."));
+		authServer = settings.get("auth");
+		
+		// check for updates
+		if(MS2Update())
+		{
+			Logger.logln("An update for Mineshafter Squared is available, please go to " + authServer + " and redownload the proxy client.");
+			System.exit(0);
 		}
 		
+		launchProxyAndServer(args);
+	}
+	
+	private static void launchProxyAndServer(String[] args)
+	{
 		try {
 			// Create MineProxy
 			MineProxy proxy = new MineProxy(VERSION, authServer);
@@ -75,9 +50,6 @@ public class MineServer {
 			System.setProperty("http.proxyHost", "127.0.0.1");
 			System.setProperty("http.proxyPort", Integer.toString(proxyPort));
 			
-			//System.setProperty("https.proxyHost", "127.0.0.1");
-			//System.setProperty("https.proxyPort", Integer.toString(proxyPort));
-
 			// Try to load provided jar from console. If none is present fall
 			// back to default server jar.
 			String load;
@@ -117,5 +89,21 @@ public class MineServer {
 			e.printStackTrace();
 			System.exit(1);
 		}
+	}
+	
+	private static boolean MS2Update()
+	{
+			// old "http://" + authServer + "/update.php?name=client&build=" + buildNumber
+			String updateInfo = new String(SimpleRequest.get("http://" + authServer + "/update/server/new"));
+			
+			// Print Proxy Version Numbers to Console
+			Logger.logln("Current proxy version: " + VERSION);
+			Logger.logln("Gotten proxy version: " + updateInfo);
+			
+			// tell user to update if not at latest version
+			if(updateInfo.equals(VERSION))
+				return false;
+			else
+				return true;
 	}
 }

@@ -11,12 +11,12 @@ import java.net.BindException;
 
 public class MineProxy extends Thread {
 	public static String authServer;
-	public float version = 0;
+	public String version = "";
 	private int port = -1;
 	
 	// Patterns
-	public static Pattern SKIN_URL = Pattern.compile("http://s3\\.amazonaws\\.com/MinecraftSkins/(.+?)\\.png");
-	public static Pattern CLOAK_URL = Pattern.compile("http://s3\\.amazonaws\\.com/MinecraftCloaks/(.+?)\\.png");
+	public static Pattern SKIN_URL = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftSkins/(.+?)\\.png");
+ 	public static Pattern CLOAK_URL = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftCloaks/(.+?)\\.png");
 	public static Pattern GETVERSION_URL = Pattern.compile("http://session\\.minecraft\\.net/game/getversion\\.jsp");
 	public static Pattern JOINSERVER_URL = Pattern.compile("http://session\\.minecraft\\.net/game/joinserver\\.jsp(.*)");
 	public static Pattern CHECKSERVER_URL = Pattern.compile("http://session\\.minecraft\\.net/game/checkserver\\.jsp(.*)");
@@ -24,13 +24,12 @@ public class MineProxy extends Thread {
 	public static Pattern CLIENT_SNOOP = Pattern.compile("http://snoop\\.minecraft\\.net/client(.*)");
 	public static Pattern SERVER_SNOOP = Pattern.compile("http://snoop\\.minecraft\\.net/server(.*)");
 	public static Pattern DL_BUKKIT = Pattern.compile("http://dl.bukkit.org/(.+?)");
-	//public static Pattern LOGIN_URL = Pattern.compile("login\\.minecraft\\.net/");
 	
 	/* NTS: See if this is still needed */
 	public Hashtable<String, byte[]> skinCache;
 	public Hashtable<String, byte[]> cloakCache;
 	
-	public MineProxy(float version, String currentAuthServer) {
+	public MineProxy(String version, String currentAuthServer) {
 		setName("MineProxy Thread");
 		
 		MineProxy.authServer = currentAuthServer; // TODO maybe change this leave it for now 

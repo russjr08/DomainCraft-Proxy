@@ -1,4 +1,4 @@
-package com.mineshaftersquared.util;
+package com.mineshaftersquared;
 
 public class Logger {
 	
