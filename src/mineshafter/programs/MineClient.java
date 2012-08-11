@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Map;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -30,7 +31,7 @@ import mineshafter.util.Streams;
 @SuppressWarnings("restriction")
 public class MineClient extends Applet {
 	private static final long serialVersionUID = 1L;
-	protected static String VERSION = "3.8.0";
+	protected static String VERSION = "2.0";
 	
 	protected static String launcherDownloadURL = "https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar";
 	protected static String normalLauncherFilename = "minecraft.jar";
@@ -43,6 +44,7 @@ public class MineClient extends Applet {
 	protected static String gamePath;
 	protected static String versionPath;
 	protected static Settings settings;
+	protected static String serverVersion;
 	
 	public void init() {
 		MineClient.main(new String[0]);
@@ -50,6 +52,11 @@ public class MineClient extends Applet {
 	
 	public static void main(String[] args) 
 	{
+		// Get Update Info
+		String[] gamePaths = getGameFilePaths(); // test
+		gamePath = gamePaths[0];
+		versionPath = gamePaths[1];
+					
 		// Get Update Info
 		File gamePath = Util.getWorkingDirectory(); // test
 		mineshaftersquaredPath = new File(gamePath.toString().replace("minecraft", "mineshaftersquared"));
@@ -63,8 +70,8 @@ public class MineClient extends Applet {
 		// check for MS2 updates
 		if(MS2Update())
 		{
-			JOptionPane.showMessageDialog(null, "An update for Mineshafter Squared is available, please go to " + authServer + " and redownload the proxy client.", "Update Available", JOptionPane.PLAIN_MESSAGE);
-			System.exit(0);
+			JOptionPane.showMessageDialog(null, "A new version of the DomainCraft Proxy is available at http://" + authServer + "/downloads/DomainCraftProxy.jar" + "\nUpdates are required in order to use the proxy.\nYour Proxy Version: " + VERSION + "\nProxy Version on server: " + serverVersion, "Update Available", JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
 		}
 		
 		// get everything going
@@ -74,15 +81,25 @@ public class MineClient extends Applet {
 	
 	private static boolean MS2Update()
 	{		
-			// old "http://" + authServer + "/update.php?name=client&build=" + buildNumber
-			String updateInfo = new String(SimpleRequest.get("http://" + authServer + "/update/client/"));
+			
+			String buildNumber = getGameBuildNumber();
+			String updateInfo = new String(SimpleRequest.get("http://" + authServer + "/update.php?name=client&build=" + buildNumber));
+			String[] updateInfoArray = updateInfo.split(":");
+			
+			serverVersion = updateInfoArray[0];
+			
+			String needsUpdate = updateInfoArray[1];
+			//String updateInfo = new String(SimpleRequest.get("http://" + authServer + "/update/client/"));
 			
 			// Print Proxy Version Numbers to Console
+			System.out.println("Checking if Proxy needs update..." + "http://" + authServer + "/update.php?name=client&build=" + buildNumber);
 			System.out.println("Current proxy version: " + VERSION);
-			System.out.println("Gotten proxy version: " + updateInfo);
+			System.out.println("Latest proxy version: " + serverVersion);
+			System.out.println("Game version: " + buildNumber);
+			System.out.println("Game needs update: " + needsUpdate);
 			
 			// tell user to update if not at latest version
-			if(updateInfo.equals(VERSION))
+			if(serverVersion.equals(VERSION))
 				return false;
 			else
 				return true;
@@ -188,5 +205,38 @@ public class MineClient extends Applet {
 			System.out.println("Editing launcher failed:");
 			e.printStackTrace();
 		}
+	}
+	private static String getGameBuildNumber() {
+        // get current game version number
+        if(versionPath != null && new File(versionPath).exists()){
+            return Resources.loadString(versionPath).trim();
+        } else {
+            return "0";
+        }
+    }
+	private static String[] getGameFilePaths(){
+		String[] paths = new String[3];
+
+		String os = System.getProperty("os.name").toLowerCase();
+        Map<String, String> enviornment = System.getenv();
+        String basePath;
+        if (os.contains("windows")) {
+        	basePath = enviornment.get("APPDATA");
+            paths[0] = basePath + "\\.minecraft\\bin";
+            paths[1] = paths[0] + "\\version";
+            paths[2] = basePath + "\\.domaincraftproxy\\";
+        } else if (os.contains("mac")) {
+        	basePath = "/Users/" + enviornment.get("USER") + "/Library/Application Support";
+        	paths[0] = basePath + "/minecraft/bin";
+        	paths[1] = paths[0] + "/version";
+        	paths[2] = basePath + "/domaincraftproxy/";
+        } else if(os.contains("linux")){
+        	basePath = enviornment.get("HOME");
+        	paths[0] = basePath+ "/.minecraft/bin";
+        	paths[1] = paths[0] + "/version";
+        	paths[2] = basePath + "/.domaincraftproxy/";
+        }
+        
+        return paths;
 	}
 }

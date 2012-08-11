@@ -16,7 +16,7 @@ import mineshafter.util.SimpleRequest;
 
 @SuppressWarnings("restriction")
 public class MineServer {
-	protected static String VERSION = "3.8.0";
+	protected static String VERSION = "3.0";
 
 	protected static String authServer = new String();
 	protected static File mineshaftersquaredPath;
@@ -32,7 +32,7 @@ public class MineServer {
 		// check for updates
 		if(MS2Update())
 		{
-			Logger.logln("An update for Mineshafter Squared is available, please go to " + authServer + " and redownload the proxy client.");
+			Logger.logln("An update for the DomainCraft Proxy is available, please go to " + authServer + " and redownload the proxy client.");
 			System.exit(0);
 		}
 		
@@ -94,11 +94,12 @@ public class MineServer {
 	private static boolean MS2Update()
 	{
 			// old "http://" + authServer + "/update.php?name=client&build=" + buildNumber
-			String updateInfo = new String(SimpleRequest.get("http://" + authServer + "/update/server/new"));
+			
+			String updateInfo = new String(SimpleRequest.get("http://" + authServer + "/update.php?name=server"));			
 			
 			// Print Proxy Version Numbers to Console
 			Logger.logln("Current proxy version: " + VERSION);
-			Logger.logln("Gotten proxy version: " + updateInfo);
+			Logger.logln("Latest proxy version: " + updateInfo);
 			
 			// tell user to update if not at latest version
 			if(updateInfo.equals(VERSION))
